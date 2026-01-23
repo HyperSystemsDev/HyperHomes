@@ -4,7 +4,6 @@ title: "[Bug]: "
 labels: ["bug"]
 projects: []
 body:
-
   - type: input
     id: pluginVersion
     attributes:
@@ -87,8 +86,8 @@ body:
     attributes:
       label: Confirmation Checklist
       options:
-        - label: I have checked the existing [issues](https://github.com/ZenithDevHQ/HyperHomes/issues) for duplicates.
+        - label: I have checked the existing [issues](https://github.com/HyperSystemsDev/HyperHomes/issues) for duplicates.
           required: true
 
-        - label: I agree to follow this project's [Code of Conduct](https://github.com/ZenithDevHQ/HyperHomes/blob/main/CODE_OF_CONDUCT.md).
+        - label: I agree to follow this project's [Code of Conduct](https://github.com/HyperSystemsDev/HyperHomes/blob/main/CODE_OF_CONDUCT.md).
           required: true
