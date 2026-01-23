@@ -3,7 +3,6 @@ description: Help us improve this repository by filling a detailed bug report.
 title: "[Bug]: "
 labels: ["bug"]
 projects: []
-type: bug
 body:
 
   - type: input
