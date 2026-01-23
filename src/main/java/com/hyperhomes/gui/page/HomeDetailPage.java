@@ -1,5 +1,6 @@
 package com.hyperhomes.gui.page;
 
+import com.hyperhomes.HyperHomes;
 import com.hyperhomes.gui.GuiManager;
 import com.hyperhomes.gui.UIHelper;
 import com.hyperhomes.gui.data.HomeDetailData;
@@ -7,8 +8,14 @@ import com.hyperhomes.manager.HomeManager;
 import com.hyperhomes.manager.TeleportManager;
 import com.hyperhomes.model.Home;
 import com.hyperhomes.model.Location;
+import com.hyperhomes.platform.HyperHomesPlugin;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.vector.Vector3d;
+import com.hypixel.hytale.math.vector.Vector3f;
+import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.Message;
@@ -57,16 +64,16 @@ public class HomeDetailPage extends InteractiveCustomUIPage<HomeDetailData> {
         cmd.set("#Coords.Text", UIHelper.formatCoordsDetailed(home));
         cmd.set("#LastUsed.Text", UIHelper.formatRelativeTime(home.lastUsed()));
 
-        // Show share info if home is shared
+        // Show share info if home is shared (append the group dynamically instead of using Visible)
         if (home.isShared()) {
-            cmd.set("#ShareInfo.Visible", "true");
+            cmd.append("#ShareInfoContainer", "HyperHomes/share_info.ui");
             int sharedCount = home.sharedWith().size();
-            cmd.set("#SharedCount.Text", sharedCount + " player" + (sharedCount != 1 ? "s" : ""));
+            cmd.set("#ShareInfoContainer #SharedCount.Text", sharedCount + " player" + (sharedCount != 1 ? "s" : ""));
 
             // Bind manage share button
             events.addEventBinding(
                     CustomUIEventBindingType.Activating,
-                    "#ManageShareBtn",
+                    "#ShareInfoContainer #ManageShareBtn",
                     EventData.of("Button", "ManageShare")
                             .append("HomeName", home.name()),
                     false
@@ -74,6 +81,7 @@ public class HomeDetailPage extends InteractiveCustomUIPage<HomeDetailData> {
         }
 
         // Bind action buttons
+        com.hyperhomes.util.Logger.info("[GUI-DEBUG] Binding #TeleportBtn for home: %s", home.name());
         events.addEventBinding(
                 CustomUIEventBindingType.Activating,
                 "#TeleportBtn",
@@ -82,6 +90,7 @@ public class HomeDetailPage extends InteractiveCustomUIPage<HomeDetailData> {
                 false
         );
 
+        com.hyperhomes.util.Logger.info("[GUI-DEBUG] Binding #ShareBtn for home: %s", home.name());
         events.addEventBinding(
                 CustomUIEventBindingType.Activating,
                 "#ShareBtn",
@@ -90,6 +99,7 @@ public class HomeDetailPage extends InteractiveCustomUIPage<HomeDetailData> {
                 false
         );
 
+        com.hyperhomes.util.Logger.info("[GUI-DEBUG] Binding #DeleteBtn for home: %s", home.name());
         events.addEventBinding(
                 CustomUIEventBindingType.Activating,
                 "#DeleteBtn",
@@ -98,6 +108,7 @@ public class HomeDetailPage extends InteractiveCustomUIPage<HomeDetailData> {
                 false
         );
 
+        com.hyperhomes.util.Logger.info("[GUI-DEBUG] All HomeDetailPage bindings complete");
         // Note: $C.@BackButton {} handles back/close functionality automatically
     }
 
@@ -106,25 +117,36 @@ public class HomeDetailPage extends InteractiveCustomUIPage<HomeDetailData> {
                                 HomeDetailData data) {
         super.handleDataEvent(ref, store, data);
 
+        // Log ALL incoming events
+        com.hyperhomes.util.Logger.info("[GUI-DEBUG] HomeDetailPage.handleDataEvent called - button: %s, homeName: %s",
+                data.button, data.homeName);
+
         Player player = store.getComponent(ref, Player.getComponentType());
         PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
 
         if (player == null || playerRef == null) {
+            com.hyperhomes.util.Logger.warn("[GUI-DEBUG] player or playerRef is null!");
             return;
         }
 
         if (data.button == null) {
+            com.hyperhomes.util.Logger.info("[GUI-DEBUG] data.button is null, ignoring event");
             return;
         }
 
         UUID uuid = playerRef.getUuid();
+
+        com.hyperhomes.util.Logger.info("[GUI-DEBUG] Processing button: %s for player %s", data.button, uuid);
 
         switch (data.button) {
             case "Close" -> guiManager.closePage(player, ref, store);
 
             case "Back" -> guiManager.openHomesList(player, ref, store, playerRef);
 
-            case "Teleport" -> handleTeleport(player, ref, store, playerRef);
+            case "Teleport" -> {
+                com.hyperhomes.util.Logger.info("[GUI-DEBUG] Teleport button clicked for home: %s", home.name());
+                handleTeleport(player, ref, store, playerRef);
+            }
 
             case "Share", "ManageShare" -> {
                 // Get fresh home data in case it changed
@@ -144,9 +166,11 @@ public class HomeDetailPage extends InteractiveCustomUIPage<HomeDetailData> {
     private void handleTeleport(Player player, Ref<EntityStore> ref,
                                 Store<EntityStore> store, PlayerRef playerRef) {
         UUID uuid = playerRef.getUuid();
+        com.hyperhomes.util.Logger.info("[GUI-DEBUG] handleTeleport called for player %s, home %s", uuid, home.name());
 
         // Check cooldown
         long cooldown = homeManager.getRemainingCooldown(uuid);
+        com.hyperhomes.util.Logger.info("[GUI-DEBUG] Cooldown remaining: %d ms", cooldown);
         if (cooldown > 0) {
             player.sendMessage(Message.raw("You must wait ")
                     .color("#FF5555")
@@ -156,64 +180,80 @@ public class HomeDetailPage extends InteractiveCustomUIPage<HomeDetailData> {
         }
 
         // Close GUI before teleporting
+        com.hyperhomes.util.Logger.info("[GUI-DEBUG] Closing GUI page");
         guiManager.closePage(player, ref, store);
 
-        // Get current location for warmup tracking
+        // Get current location for warmup tracking (use CURRENT world, not destination)
         TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+        World currentWorld = player.getWorld();
+        String currentWorldName = currentWorld != null ? currentWorld.getName() : home.world();
         Location currentLocation;
         if (transform != null) {
             var position = transform.getPosition();
-            currentLocation = new Location(home.world(), position.x, position.y, position.z, 0f, 0f);
+            currentLocation = new Location(currentWorldName, position.x, position.y, position.z, 0f, 0f);
         } else {
             currentLocation = Location.fromHome(home);
         }
 
-        // Initiate teleport
-        teleportManager.teleportToHome(
+        // Get plugin for proper server-thread scheduling
+        HyperHomes plugin = guiManager.getPlugin().get();
+
+        // Store entity context for movement checking
+        HyperHomesPlugin pluginInstance = HyperHomesPlugin.getInstance();
+        if (pluginInstance != null) {
+            pluginInstance.storeEntityContext(uuid, store, ref);
+        }
+
+        // Initiate teleport with proper scheduler
+        com.hyperhomes.util.Logger.info("[GUI-DEBUG] Calling teleportManager.teleportToHome");
+        boolean started = teleportManager.teleportToHome(
                 uuid,
                 home,
                 currentLocation,
                 (delayTicks, task) -> {
-                    java.util.Timer timer = new java.util.Timer();
-                    timer.schedule(new java.util.TimerTask() {
-                        @Override
-                        public void run() {
-                            task.run();
-                        }
-                    }, delayTicks * 50L);
-                    return delayTicks;
+                    com.hyperhomes.util.Logger.info("[GUI-DEBUG] Scheduling task with delay %d ticks", delayTicks);
+                    return plugin.scheduleDelayedTask(delayTicks, task);
                 },
-                taskId -> { },
+                plugin::cancelTask,
                 destHome -> {
-                    var world = com.hypixel.hytale.server.core.universe.Universe.get()
-                            .getWorld(destHome.world());
+                    com.hyperhomes.util.Logger.info("[GUI-DEBUG] Teleport callback executed for home %s", destHome.name());
+
+                    // Clean up entity context
+                    if (pluginInstance != null) {
+                        pluginInstance.removeEntityContext(uuid);
+                    }
+
+                    // Get target world
+                    World world = Universe.get().getWorld(destHome.world());
+                    com.hyperhomes.util.Logger.info("[GUI-DEBUG] Target world: %s, found: %s", destHome.world(), world != null);
                     if (world == null) {
                         return TeleportManager.TeleportResult.WORLD_NOT_FOUND;
                     }
 
-                    var teleport = new com.hypixel.hytale.server.core.modules.entity.teleport.Teleport(
-                            world,
-                            new com.hypixel.hytale.math.vector.Vector3d(
-                                    destHome.x(), destHome.y(), destHome.z()
-                            ),
-                            new com.hypixel.hytale.math.vector.Vector3f(
-                                    destHome.pitch(), destHome.yaw(), 0
-                            )
-                    );
+                    // Execute teleport on the world's thread
+                    // Use playerRef.getHolder() to get fresh store reference since GUI might have closed
+                    world.execute(() -> {
+                        com.hyperhomes.util.Logger.info("[GUI-DEBUG] World.execute running teleport");
+                        Vector3d position = new Vector3d(destHome.x(), destHome.y(), destHome.z());
+                        Vector3f rotation = new Vector3f(destHome.pitch(), destHome.yaw(), 0);
+                        Teleport teleport = new Teleport(world, position, rotation);
 
-                    var holder = playerRef.getHolder();
-                    if (holder != null) {
-                        holder.addComponent(
-                                com.hypixel.hytale.server.core.modules.entity.teleport.Teleport.getComponentType(),
-                                teleport
-                        );
-                        return TeleportManager.TeleportResult.SUCCESS;
-                    }
+                        // Get fresh holder from playerRef (store might be stale after GUI close)
+                        var holder = playerRef.getHolder();
+                        com.hyperhomes.util.Logger.info("[GUI-DEBUG] playerRef.getHolder() returned: %s", holder != null ? "valid" : "null");
+                        if (holder != null) {
+                            holder.addComponent(Teleport.getComponentType(), teleport);
+                            com.hyperhomes.util.Logger.info("[GUI-DEBUG] Teleport component added");
+                        } else {
+                            com.hyperhomes.util.Logger.warn("[GUI-DEBUG] holder was null, teleport failed!");
+                        }
+                    });
 
-                    return TeleportManager.TeleportResult.CANCELLED_MANUAL;
+                    return TeleportManager.TeleportResult.SUCCESS;
                 },
-                msg -> playerRef.sendMessage(Message.raw(msg))
+                msg -> playerRef.sendMessage(UIHelper.parseColorCodes(msg))
         );
+        com.hyperhomes.util.Logger.info("[GUI-DEBUG] teleportToHome returned: %s", started);
     }
 
     /**

@@ -36,6 +36,9 @@ public class ShareManagePage extends InteractiveCustomUIPage<ShareManageData> {
     private final GuiManager guiManager;
     private final Home home;
 
+    /** Stores the current text input value from the ValueChanged event */
+    private String currentTextInput = "";
+
     public ShareManagePage(PlayerRef playerRef, HomeManager homeManager,
                            PendingShareManager pendingShareManager,
                            GuiManager guiManager, Home home) {
@@ -105,8 +108,31 @@ public class ShareManagePage extends InteractiveCustomUIPage<ShareManageData> {
                 false
         );
 
+        // Bind the text field to capture input when value changes
+        events.addEventBinding(
+                CustomUIEventBindingType.ValueChanged,
+                "#PlayerNameInput",
+                EventData.of("Button", "TextInput"),
+                false
+        );
+
+        // Also bind FocusLost as backup to capture text when user clicks away
+        events.addEventBinding(
+                CustomUIEventBindingType.FocusLost,
+                "#PlayerNameInput",
+                EventData.of("Button", "TextInput"),
+                false
+        );
+
+        // Bind Validating event (Enter key press) which might include the text value
+        events.addEventBinding(
+                CustomUIEventBindingType.Validating,
+                "#PlayerNameInput",
+                EventData.of("Button", "TextSubmit"),
+                false
+        );
+
         // Note: $C.@BackButton {} handles back/close functionality automatically
-        // Note: Text field value should be captured via PlayerNameInput field
     }
 
     @Override
@@ -121,6 +147,10 @@ public class ShareManagePage extends InteractiveCustomUIPage<ShareManageData> {
             return;
         }
 
+        // Debug logging
+        com.hyperhomes.util.Logger.info("[SHARE-DEBUG] Received event - button: %s, inputText: %s, value: %s, text: %s",
+                data.button, data.inputText, data.value, data.text);
+
         if (data.button == null) {
             return;
         }
@@ -129,6 +159,17 @@ public class ShareManagePage extends InteractiveCustomUIPage<ShareManageData> {
 
         switch (data.button) {
             case "Close" -> guiManager.closePage(player, ref, store);
+
+            case "TextInput", "TextSubmit" -> {
+                // Store the text input value when it changes or when Enter is pressed
+                // Check all possible field names where the value might be sent
+                String textValue = data.getTextInput();
+                com.hyperhomes.util.Logger.info("[SHARE-DEBUG] %s event - textValue: %s, storing to currentTextInput", data.button, textValue);
+                if (textValue != null && !textValue.isEmpty()) {
+                    currentTextInput = textValue;
+                    com.hyperhomes.util.Logger.info("[SHARE-DEBUG] Stored currentTextInput: %s", currentTextInput);
+                }
+            }
 
             case "Back" -> {
                 // Get fresh home data and go back to detail
@@ -141,14 +182,22 @@ public class ShareManagePage extends InteractiveCustomUIPage<ShareManageData> {
             }
 
             case "AddShare" -> {
-                // Get the player name from the text input
-                String targetName = data.inputText;
+                // Get the player name from the stored text input (captured via ValueChanged event)
+                // or from the event data if somehow included (check all possible field names)
+                com.hyperhomes.util.Logger.info("[SHARE-DEBUG] AddShare clicked - currentTextInput: '%s', data.getTextInput(): '%s'",
+                        currentTextInput, data.getTextInput());
+                String targetName = currentTextInput;
+                if (targetName == null || targetName.trim().isEmpty()) {
+                    targetName = data.getTextInput();
+                }
+                com.hyperhomes.util.Logger.info("[SHARE-DEBUG] Final targetName: '%s'", targetName);
                 if (targetName == null || targetName.trim().isEmpty()) {
                     player.sendMessage(Message.raw("[")
                             .color("#AAAAAA")
                             .insert(Message.raw("HyperHomes").color("#FFAA00"))
                             .insert(Message.raw("] ").color("#AAAAAA"))
-                            .insert(Message.raw("Please enter a player name.").color("#FF5555")));
+                            .insert(Message.raw("GUI text input not supported. Use command:").color("#FF5555")));
+                    player.sendMessage(Message.raw("/homes share " + home.name() + " <player>").color("#55FF55"));
                     return;
                 }
 

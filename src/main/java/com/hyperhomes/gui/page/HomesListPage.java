@@ -292,12 +292,18 @@ public class HomesListPage extends InteractiveCustomUIPage<HomesListData> {
                         return TeleportManager.TeleportResult.WORLD_NOT_FOUND;
                     }
 
-                    // Execute teleport on the world's thread (like HomeCommand does)
+                    // Execute teleport on the world's thread
+                    // Use playerRef.getHolder() to get fresh store reference since GUI might have closed
                     world.execute(() -> {
                         Vector3d position = new Vector3d(destHome.x(), destHome.y(), destHome.z());
                         Vector3f rotation = new Vector3f(destHome.pitch(), destHome.yaw(), 0);
                         Teleport teleport = new Teleport(world, position, rotation);
-                        store.addComponent(ref, Teleport.getComponentType(), teleport);
+
+                        // Get fresh holder from playerRef (store might be stale after GUI close)
+                        var holder = playerRef.getHolder();
+                        if (holder != null) {
+                            holder.addComponent(Teleport.getComponentType(), teleport);
+                        }
                     });
 
                     return TeleportManager.TeleportResult.SUCCESS;

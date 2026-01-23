@@ -91,34 +91,8 @@ $C.@Container {
       }
     }
 
-    Group #ShareInfo {
-      Visible: false;
-      Background: $C.@InputBoxBackground;
-      Padding: (Full: 12);
-      LayoutMode: Left;
-      Anchor: (Height: 45, Bottom: 15);
-
-      Label {
-        Text: "Shared with:";
-        Style: (FontSize: 13, TextColor: #888888, VerticalAlignment: Center);
-      }
-
-      Label #SharedCount {
-        Text: "0 players";
-        Style: (FontSize: 13, RenderBold: true, TextColor: #4a9eff, VerticalAlignment: Center);
-        Anchor: (Left: 8);
-      }
-
-      Label {
-        FlexWeight: 1;
-      }
-
-      TextButton #ManageShareBtn {
-        Anchor: (Height: 24, Width: 90);
-        Padding: (Left: 10, Right: 10, Top: 5, Bottom: 5);
-        Text: "MANAGE";
-        Style: $S.@SmallButtonStyle;
-      }
+    Group #ShareInfoContainer {
+      LayoutMode: Top;
     }
 
     Label {

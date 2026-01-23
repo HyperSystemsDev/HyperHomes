@@ -297,27 +297,41 @@ public class HomeManager {
      * @return true if successfully shared
      */
     public boolean shareHome(@NotNull UUID ownerUuid, @NotNull String homeName, @NotNull UUID targetUuid) {
+        Logger.info("[SHARE-DEBUG] shareHome(owner=%s, home='%s', target=%s)", ownerUuid, homeName, targetUuid);
+
         PlayerHomes ownerHomes = cache.get(ownerUuid);
         if (ownerHomes == null) {
+            Logger.info("[SHARE-DEBUG]   Owner not in cache!");
             return false;
         }
 
         Home home = ownerHomes.getHome(homeName);
         if (home == null) {
+            Logger.info("[SHARE-DEBUG]   Home not found!");
             return false;
         }
 
         // Can't share with yourself
         if (ownerUuid.equals(targetUuid)) {
+            Logger.info("[SHARE-DEBUG]   Can't share with yourself!");
             return false;
         }
+
+        Logger.info("[SHARE-DEBUG]   Before: sharedWith=%s", home.sharedWith());
 
         // Add the target to the share list
         Home updatedHome = home.withSharedPlayer(targetUuid);
         ownerHomes.setHome(updatedHome);
+
+        Logger.info("[SHARE-DEBUG]   After: sharedWith=%s", updatedHome.sharedWith());
+
+        // Verify the update
+        Home verifyHome = ownerHomes.getHome(homeName);
+        Logger.info("[SHARE-DEBUG]   Verify: sharedWith=%s", verifyHome != null ? verifyHome.sharedWith() : "null");
+
         savePlayer(ownerUuid);
 
-        Logger.debug("Player %s shared home '%s' with %s", ownerUuid, homeName, targetUuid);
+        Logger.info("[SHARE-DEBUG] Share successful!");
         return true;
     }
 
@@ -363,21 +377,35 @@ public class HomeManager {
      */
     @Nullable
     public Home getSharedHome(@NotNull UUID requesterUuid, @NotNull UUID ownerUuid, @NotNull String homeName) {
+        Logger.info("[SHARE-DEBUG] getSharedHome(requester=%s, owner=%s, home='%s')", requesterUuid, ownerUuid, homeName);
+
         PlayerHomes ownerHomes = cache.get(ownerUuid);
         if (ownerHomes == null) {
+            Logger.info("[SHARE-DEBUG]   Owner not in cache!");
             return null;
         }
+        Logger.info("[SHARE-DEBUG]   Owner found in cache: %s", ownerHomes.getUsername());
 
         Home home = ownerHomes.getHome(homeName);
         if (home == null) {
+            Logger.info("[SHARE-DEBUG]   Home '%s' not found! Available homes: %s", homeName, ownerHomes.getHomeNames());
+            return null;
+        }
+        Logger.info("[SHARE-DEBUG]   Home found: %s, sharedWith: %s", home.name(), home.sharedWith());
+
+        // Check if the requester has access via sharing or admin bypass
+        boolean isShared = home.isSharedWith(requesterUuid);
+        boolean hasAdminBypass = HyperPermsIntegration.hasPermission(requesterUuid, "hyperhomes.admin.teleport.others");
+        boolean hasAccess = isShared || hasAdminBypass;
+
+        Logger.info("[SHARE-DEBUG]   isSharedWith=%s, hasAdminBypass=%s, hasAccess=%s", isShared, hasAdminBypass, hasAccess);
+
+        if (!hasAccess) {
+            Logger.info("[SHARE-DEBUG]   ACCESS DENIED");
             return null;
         }
 
-        // Check if the requester has access
-        if (!home.isSharedWith(requesterUuid)) {
-            return null;
-        }
-
+        Logger.info("[SHARE-DEBUG]   ACCESS GRANTED");
         return home;
     }
 
@@ -433,11 +461,15 @@ public class HomeManager {
     @Nullable
     public UUID findPlayerByUsername(@NotNull String username) {
         String lowerUsername = username.toLowerCase();
+        Logger.info("[SHARE-DEBUG] findPlayerByUsername('%s') - cache size: %d", username, cache.size());
         for (PlayerHomes homes : cache.values()) {
+            Logger.info("[SHARE-DEBUG]   Checking cached player: %s (UUID: %s)", homes.getUsername(), homes.getUuid());
             if (homes.getUsername().toLowerCase().equals(lowerUsername)) {
+                Logger.info("[SHARE-DEBUG]   MATCH FOUND!");
                 return homes.getUuid();
             }
         }
+        Logger.info("[SHARE-DEBUG]   No match found for '%s'", username);
         return null;
     }
 }

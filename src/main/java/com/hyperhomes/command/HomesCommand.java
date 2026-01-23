@@ -5,6 +5,9 @@ import com.hyperhomes.config.HyperHomesConfig;
 import com.hyperhomes.gui.GuiManager;
 import com.hyperhomes.integration.HyperPermsIntegration;
 import com.hyperhomes.manager.HomeManager;
+import com.hyperhomes.migration.MigrationManager;
+import com.hyperhomes.migration.MigrationResult;
+import com.hyperhomes.migration.MigrationSource;
 import com.hyperhomes.model.Home;
 import com.hyperhomes.update.UpdateChecker;
 import com.hypixel.hytale.component.Ref;
@@ -76,6 +79,9 @@ public class HomesCommand extends AbstractPlayerCommand {
 
         // Add debug command for diagnosing permission issues
         addSubCommand(new DebugPermsSubCommand());
+
+        // Add migration command
+        addSubCommand(new MigrateSubCommand(plugin));
     }
 
     @Override
@@ -92,6 +98,19 @@ public class HomesCommand extends AbstractPlayerCommand {
             ctx.sendMessage(prefix()
                 .insert(Message.raw("You don't have permission to list homes.").color(COLOR_RED)));
             return;
+        }
+
+        // Check if user is trying to use shared home syntax (e.g., /homes player:home)
+        String input = ctx.getInputString();
+        if (input != null && !input.isEmpty()) {
+            String[] parts = input.trim().split("\\s+");
+            if (parts.length >= 2 && parts[1].contains(":")) {
+                // User is trying to teleport to shared home via /homes
+                ctx.sendMessage(prefix()
+                    .insert(Message.raw("To teleport to a shared home, use: ").color(COLOR_YELLOW))
+                    .insert(Message.raw("/home " + parts[1]).color(COLOR_GREEN)));
+                return;
+            }
         }
 
         // Check if GUI should be used by default
@@ -238,7 +257,9 @@ public class HomesCommand extends AbstractPlayerCommand {
             }
 
             // Share the home
+            com.hyperhomes.util.Logger.info("[SHARE-DEBUG] ShareSubCommand: Calling shareHome(owner=%s, home='%s', target=%s)", uuid, homeName, targetUuid);
             boolean success = homeManager.shareHome(uuid, homeName, targetUuid);
+            com.hyperhomes.util.Logger.info("[SHARE-DEBUG] ShareSubCommand: shareHome returned %s", success);
             if (success) {
                 String targetUsername = homeManager.getUsername(targetUuid);
                 ctx.sendMessage(prefix()
@@ -547,6 +568,10 @@ public class HomesCommand extends AbstractPlayerCommand {
             ctx.sender().sendMessage(
                 Message.raw("/homes update download").color(COLOR_GREEN)
                     .insert(Message.raw(" - Download latest update").color(COLOR_GRAY))
+            );
+            ctx.sender().sendMessage(
+                Message.raw("/homes migrate <source>").color(COLOR_GREEN)
+                    .insert(Message.raw(" - Import homes from other plugins").color(COLOR_GRAY))
             );
 
             ctx.sender().sendMessage(Message.empty());
@@ -966,6 +991,237 @@ public class HomesCommand extends AbstractPlayerCommand {
             ctx.sendMessage(Message.raw("Detailed status printed to server console.").color(COLOR_YELLOW));
             com.hyperhomes.util.Logger.info(HyperPermsIntegration.getDetailedStatus());
             com.hyperhomes.util.Logger.info(HyperPermsIntegration.testPermission(uuid, "hyperhomes.gui"));
+        }
+    }
+
+    /**
+     * /homes migrate <source> [policy] - Migrate homes from other plugins.
+     * Sources: json, yaml, sqlite
+     * Policies: skip (default), rename, overwrite
+     */
+    private static class MigrateSubCommand extends AbstractCommand {
+
+        private static final String COLOR_GOLD = "#FFAA00";
+        private static final String COLOR_GREEN = "#55FF55";
+        private static final String COLOR_RED = "#FF5555";
+        private static final String COLOR_YELLOW = "#FFFF55";
+        private static final String COLOR_GRAY = "#AAAAAA";
+        private static final String COLOR_WHITE = "#FFFFFF";
+        private static final String COLOR_AQUA = "#55FFFF";
+
+        private final HyperHomes plugin;
+
+        public MigrateSubCommand(@NotNull HyperHomes plugin) {
+            super("migrate", "Migrate homes from other plugins");
+            this.plugin = plugin;
+            setAllowsExtraArguments(true);
+        }
+
+        @Override
+        protected CompletableFuture<Void> execute(@NotNull CommandContext ctx) {
+            // Permission check - try to get UUID from sender
+            try {
+                var method = ctx.sender().getClass().getMethod("getUuid");
+                Object result = method.invoke(ctx.sender());
+                if (result instanceof java.util.UUID uuid) {
+                    if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.admin.migrate")) {
+                        ctx.sender().sendMessage(prefix()
+                            .insert(Message.raw("You don't have permission to migrate data.").color(COLOR_RED)));
+                        return CompletableFuture.completedFuture(null);
+                    }
+                }
+            } catch (Exception ignored) {
+                // Allow console to migrate
+            }
+
+            MigrationManager migrationManager = plugin.getMigrationManager();
+
+            // Parse arguments
+            String input = ctx.getInputString();
+            String[] args = parseArgs(input);
+
+            // No args - show help
+            if (args.length == 0) {
+                showMigrationHelp(ctx.sender(), migrationManager);
+                return CompletableFuture.completedFuture(null);
+            }
+
+            String sourceId = args[0].toLowerCase();
+
+            // Special command: list sources
+            if (sourceId.equals("list")) {
+                showMigrationSources(ctx.sender(), migrationManager);
+                return CompletableFuture.completedFuture(null);
+            }
+
+            // Get the source
+            MigrationSource source = migrationManager.getSource(sourceId);
+            if (source == null) {
+                ctx.sender().sendMessage(prefix()
+                    .insert(Message.raw("Unknown migration source: ").color(COLOR_RED))
+                    .insert(Message.raw(sourceId).color(COLOR_YELLOW)));
+                ctx.sender().sendMessage(Message.raw("Use ").color(COLOR_GRAY)
+                    .insert(Message.raw("/homes migrate list").color(COLOR_YELLOW))
+                    .insert(Message.raw(" to see available sources.").color(COLOR_GRAY)));
+                return CompletableFuture.completedFuture(null);
+            }
+
+            // Parse duplicate policy
+            MigrationManager.DuplicatePolicy policy = MigrationManager.DuplicatePolicy.SKIP;
+            if (args.length > 1) {
+                try {
+                    policy = MigrationManager.DuplicatePolicy.valueOf(args[1].toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    ctx.sender().sendMessage(prefix()
+                        .insert(Message.raw("Invalid policy. Use: skip, rename, or overwrite").color(COLOR_RED)));
+                    return CompletableFuture.completedFuture(null);
+                }
+            }
+
+            // Confirm migration
+            ctx.sender().sendMessage(prefix()
+                .insert(Message.raw("Starting migration from ").color(COLOR_YELLOW))
+                .insert(Message.raw(source.getDisplayName()).color(COLOR_WHITE))
+                .insert(Message.raw("...").color(COLOR_YELLOW)));
+            ctx.sender().sendMessage(Message.raw("  Duplicate policy: ").color(COLOR_GRAY)
+                .insert(Message.raw(policy.name().toLowerCase()).color(COLOR_AQUA)));
+            ctx.sender().sendMessage(Message.raw("  Source folder: ").color(COLOR_GRAY)
+                .insert(Message.raw("config/hyperhomes/migration/").color(COLOR_WHITE)));
+
+            // Perform migration
+            final MigrationManager.DuplicatePolicy finalPolicy = policy;
+            migrationManager.migrate(sourceId, finalPolicy, progress -> {
+                ctx.sender().sendMessage(Message.raw("  " + progress).color(COLOR_GRAY));
+            }).thenAccept(result -> {
+                showMigrationResult(ctx.sender(), result);
+            }).exceptionally(e -> {
+                ctx.sender().sendMessage(prefix()
+                    .insert(Message.raw("Migration failed: ").color(COLOR_RED))
+                    .insert(Message.raw(e.getMessage()).color(COLOR_YELLOW)));
+                return null;
+            });
+
+            return CompletableFuture.completedFuture(null);
+        }
+
+        private void showMigrationHelp(com.hypixel.hytale.server.core.command.system.CommandSender sender,
+                                       MigrationManager migrationManager) {
+            sender.sendMessage(Message.raw("=== HyperHomes Migration ===").color(COLOR_GOLD).bold(true));
+            sender.sendMessage(Message.empty());
+            sender.sendMessage(Message.raw("Usage: ").color(COLOR_GRAY)
+                .insert(Message.raw("/homes migrate <source> [policy]").color(COLOR_YELLOW)));
+            sender.sendMessage(Message.empty());
+            sender.sendMessage(Message.raw("Sources:").color(COLOR_AQUA));
+            for (MigrationSource source : migrationManager.getSources()) {
+                sender.sendMessage(Message.raw("  - ").color(COLOR_GRAY)
+                    .insert(Message.raw(source.getId()).color(COLOR_GREEN))
+                    .insert(Message.raw(" - " + source.getDisplayName()).color(COLOR_GRAY)));
+            }
+            sender.sendMessage(Message.empty());
+            sender.sendMessage(Message.raw("Policies:").color(COLOR_AQUA));
+            sender.sendMessage(Message.raw("  - ").color(COLOR_GRAY)
+                .insert(Message.raw("skip").color(COLOR_GREEN))
+                .insert(Message.raw(" - Skip duplicates (default)").color(COLOR_GRAY)));
+            sender.sendMessage(Message.raw("  - ").color(COLOR_GRAY)
+                .insert(Message.raw("rename").color(COLOR_GREEN))
+                .insert(Message.raw(" - Rename imported homes").color(COLOR_GRAY)));
+            sender.sendMessage(Message.raw("  - ").color(COLOR_GRAY)
+                .insert(Message.raw("overwrite").color(COLOR_GREEN))
+                .insert(Message.raw(" - Overwrite existing homes").color(COLOR_GRAY)));
+            sender.sendMessage(Message.empty());
+            sender.sendMessage(Message.raw("Example: ").color(COLOR_GRAY)
+                .insert(Message.raw("/homes migrate json rename").color(COLOR_YELLOW)));
+            sender.sendMessage(Message.empty());
+            sender.sendMessage(Message.raw("Place source files in: ").color(COLOR_GRAY)
+                .insert(Message.raw("config/hyperhomes/migration/").color(COLOR_WHITE)));
+        }
+
+        private void showMigrationSources(com.hypixel.hytale.server.core.command.system.CommandSender sender,
+                                          MigrationManager migrationManager) {
+            sender.sendMessage(Message.raw("=== Available Migration Sources ===").color(COLOR_GOLD).bold(true));
+            sender.sendMessage(Message.empty());
+
+            for (MigrationSource source : migrationManager.getSources()) {
+                sender.sendMessage(Message.raw(source.getId()).color(COLOR_GREEN).bold(true)
+                    .insert(Message.raw(" - " + source.getDisplayName()).color(COLOR_WHITE)));
+                sender.sendMessage(Message.raw("  Extensions: ").color(COLOR_GRAY)
+                    .insert(Message.raw(String.join(", ", source.getSupportedExtensions())).color(COLOR_YELLOW)));
+                sender.sendMessage(Message.empty());
+            }
+        }
+
+        private void showMigrationResult(com.hypixel.hytale.server.core.command.system.CommandSender sender,
+                                         MigrationResult result) {
+            sender.sendMessage(Message.empty());
+
+            if (result.isSuccess()) {
+                sender.sendMessage(prefix()
+                    .insert(Message.raw("Migration completed successfully!").color(COLOR_GREEN)));
+            } else {
+                sender.sendMessage(prefix()
+                    .insert(Message.raw("Migration completed with errors.").color(COLOR_RED)));
+            }
+
+            sender.sendMessage(Message.empty());
+            sender.sendMessage(Message.raw("=== Migration Results ===").color(COLOR_GOLD));
+            sender.sendMessage(Message.raw("  Players processed: ").color(COLOR_GRAY)
+                .insert(Message.raw(String.valueOf(result.playersProcessed())).color(COLOR_WHITE)));
+            sender.sendMessage(Message.raw("  Homes imported: ").color(COLOR_GRAY)
+                .insert(Message.raw(String.valueOf(result.homesImported())).color(COLOR_GREEN)));
+            sender.sendMessage(Message.raw("  Homes skipped: ").color(COLOR_GRAY)
+                .insert(Message.raw(String.valueOf(result.homesSkipped())).color(COLOR_YELLOW)));
+            sender.sendMessage(Message.raw("  Homes failed: ").color(COLOR_GRAY)
+                .insert(Message.raw(String.valueOf(result.homesFailed())).color(COLOR_RED)));
+            sender.sendMessage(Message.raw("  Duration: ").color(COLOR_GRAY)
+                .insert(Message.raw(result.durationMs() + "ms").color(COLOR_WHITE)));
+
+            // Show warnings
+            if (result.hasWarnings()) {
+                sender.sendMessage(Message.empty());
+                sender.sendMessage(Message.raw("Warnings:").color(COLOR_YELLOW));
+                int shown = 0;
+                for (String warning : result.warnings()) {
+                    if (shown >= 5) {
+                        sender.sendMessage(Message.raw("  ... and " + (result.warnings().size() - 5) + " more")
+                            .color(COLOR_GRAY));
+                        break;
+                    }
+                    sender.sendMessage(Message.raw("  - " + warning).color(COLOR_GRAY));
+                    shown++;
+                }
+            }
+
+            // Show errors
+            if (!result.errors().isEmpty()) {
+                sender.sendMessage(Message.empty());
+                sender.sendMessage(Message.raw("Errors:").color(COLOR_RED));
+                int shown = 0;
+                for (String error : result.errors()) {
+                    if (shown >= 5) {
+                        sender.sendMessage(Message.raw("  ... and " + (result.errors().size() - 5) + " more")
+                            .color(COLOR_GRAY));
+                        break;
+                    }
+                    sender.sendMessage(Message.raw("  - " + error).color(COLOR_GRAY));
+                    shown++;
+                }
+            }
+        }
+
+        private String[] parseArgs(String input) {
+            if (input == null || input.isEmpty()) return new String[0];
+            String[] parts = input.trim().split("\\s+");
+            // Skip "homes" and "migrate"
+            if (parts.length <= 2) return new String[0];
+            String[] args = new String[parts.length - 2];
+            System.arraycopy(parts, 2, args, 0, args.length);
+            return args;
+        }
+
+        private Message prefix() {
+            return Message.raw("[").color(COLOR_GRAY)
+                .insert(Message.raw("HyperHomes").color(COLOR_GOLD))
+                .insert(Message.raw("] ").color(COLOR_GRAY));
         }
     }
 }

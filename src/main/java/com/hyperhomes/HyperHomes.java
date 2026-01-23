@@ -5,6 +5,7 @@ import com.hyperhomes.integration.HyperPermsIntegration;
 import com.hyperhomes.manager.HomeManager;
 import com.hyperhomes.manager.PendingShareManager;
 import com.hyperhomes.manager.TeleportManager;
+import com.hyperhomes.migration.MigrationManager;
 import com.hyperhomes.model.Home;
 import com.hyperhomes.storage.StorageProvider;
 import com.hyperhomes.storage.json.JsonStorageProvider;
@@ -37,6 +38,7 @@ public class HyperHomes {
     private HomeManager homeManager;
     private TeleportManager teleportManager;
     private PendingShareManager pendingShareManager;
+    private MigrationManager migrationManager;
 
     // Task management
     private final AtomicInteger taskIdCounter = new AtomicInteger(0);
@@ -118,6 +120,8 @@ public class HyperHomes {
         homeManager = new HomeManager(storage);
         teleportManager = new TeleportManager(homeManager);
         pendingShareManager = new PendingShareManager();
+        migrationManager = new MigrationManager(dataDir, homeManager);
+        migrationManager.init();
 
         // Initialize update checker
         if (HyperHomesConfig.get().isUpdateCheckEnabled()) {
@@ -332,5 +336,15 @@ public class HyperHomes {
     @Nullable
     public UpdateChecker getUpdateChecker() {
         return updateChecker;
+    }
+
+    /**
+     * Gets the migration manager.
+     *
+     * @return the migration manager
+     */
+    @NotNull
+    public MigrationManager getMigrationManager() {
+        return migrationManager;
     }
 }

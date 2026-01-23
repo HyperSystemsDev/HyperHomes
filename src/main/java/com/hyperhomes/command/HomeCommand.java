@@ -116,8 +116,12 @@ public class HomeCommand extends AbstractPlayerCommand {
             String playerName = targetParts[0];
             String homeName = targetParts.length > 1 ? targetParts[1].toLowerCase() : "home";
 
+            com.hyperhomes.util.Logger.info("[SHARE-DEBUG] Parsing shared home: player='%s', home='%s'", playerName, homeName);
+
             // Find the owner player
             UUID ownerUuid = homeManager.findPlayerByUsername(playerName);
+            com.hyperhomes.util.Logger.info("[SHARE-DEBUG] Owner UUID lookup result: %s", ownerUuid);
+
             if (ownerUuid != null) {
                 return HomeTarget.shared(playerName, ownerUuid, homeName);
             }
