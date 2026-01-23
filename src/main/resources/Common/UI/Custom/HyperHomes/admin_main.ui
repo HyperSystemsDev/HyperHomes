@@ -1,0 +1,101 @@
+$C = "../Common.ui";
+$S = "styles.ui";
+
+$C.@PageOverlay {}
+
+$C.@Container {
+  Anchor: (Width: 520, Height: 420);
+
+  #Title {
+    $C.@Title {
+      @Text = "HyperHomes Admin";
+    }
+  }
+
+  #Content {
+    LayoutMode: Top;
+    Padding: (Left: 20, Right: 20, Top: 15);
+
+    Label {
+      Text: "Statistics";
+      Style: (FontSize: 15, RenderBold: true, TextColor: #93844c);
+      Anchor: (Bottom: 12);
+    }
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 80, Bottom: 20);
+
+      Group {
+        FlexWeight: 1;
+        Background: $C.@InputBoxBackground;
+        Padding: (Full: 15);
+        LayoutMode: Top;
+        Anchor: (Right: 8);
+
+        Label {
+          Text: "PLAYERS CACHED";
+          Style: (FontSize: 11, TextColor: #888888);
+          Anchor: (Bottom: 8);
+        }
+
+        Label #PlayersCount {
+          Text: "0";
+          Style: (FontSize: 28, RenderBold: true, TextColor: #4a9eff);
+        }
+      }
+
+      Group {
+        FlexWeight: 1;
+        Background: $C.@InputBoxBackground;
+        Padding: (Full: 15);
+        LayoutMode: Top;
+        Anchor: (Left: 8);
+
+        Label {
+          Text: "TOTAL HOMES";
+          Style: (FontSize: 11, TextColor: #888888);
+          Anchor: (Bottom: 8);
+        }
+
+        Label #HomesCount {
+          Text: "0";
+          Style: (FontSize: 28, RenderBold: true, TextColor: #FFAA00);
+        }
+      }
+    }
+
+    Group {
+      Anchor: (Height: 1, Bottom: 15);
+      Background: (Color: #93844c);
+    }
+
+    Label {
+      Text: "Quick Actions";
+      Style: (FontSize: 15, RenderBold: true, TextColor: #93844c);
+      Anchor: (Bottom: 12);
+    }
+
+    Group {
+      LayoutMode: Top;
+      Background: $C.@InputBoxBackground;
+      Padding: (Full: 18);
+
+      TextButton #SettingsBtn {
+        Anchor: (Height: 32, Bottom: 10);
+        Padding: (Left: 14, Right: 14, Top: 7, Bottom: 7);
+        Text: "SERVER SETTINGS";
+        Style: $S.@ButtonStyle;
+      }
+
+      TextButton #ReloadBtn {
+        Anchor: (Height: 32);
+        Padding: (Left: 14, Right: 14, Top: 7, Bottom: 7);
+        Text: "RELOAD CONFIG";
+        Style: $S.@ButtonStyle;
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

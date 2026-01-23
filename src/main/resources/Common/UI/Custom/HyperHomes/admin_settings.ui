@@ -1,0 +1,183 @@
+$C = "../Common.ui";
+$S = "styles.ui";
+
+$C.@PageOverlay {}
+
+$C.@Container {
+  Anchor: (Width: 520, Height: 480);
+
+  #Title {
+    $C.@Title {
+      @Text = "Server Settings";
+    }
+  }
+
+  #Content {
+    LayoutMode: Top;
+    Padding: (Left: 20, Right: 20, Top: 15);
+
+    Label {
+      Text: "Teleport Settings";
+      Style: (FontSize: 15, RenderBold: true, TextColor: #93844c);
+      Anchor: (Bottom: 12);
+    }
+
+    Group {
+      LayoutMode: Top;
+      Background: $C.@InputBoxBackground;
+      Padding: (Full: 15);
+      Anchor: (Bottom: 15);
+
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 32, Bottom: 8);
+
+        Label {
+          Text: "Warmup (seconds)";
+          Style: (FontSize: 13, TextColor: #cccccc, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+
+        TextButton #WarmupMinus {
+          Anchor: (Height: 24, Width: 32);
+          Padding: (Left: 8, Right: 8, Top: 5, Bottom: 5);
+          Text: "-";
+          Style: $S.@SmallButtonStyle;
+        }
+
+        Label #WarmupValue {
+          Text: "0s";
+          Style: (FontSize: 14, RenderBold: true, TextColor: #88ff88, HorizontalAlignment: Center, VerticalAlignment: Center);
+          Anchor: (Width: 50);
+        }
+
+        TextButton #WarmupPlus {
+          Anchor: (Height: 24, Width: 32);
+          Padding: (Left: 8, Right: 8, Top: 5, Bottom: 5);
+          Text: "+";
+          Style: $S.@SmallButtonStyle;
+        }
+      }
+
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 32, Bottom: 8);
+
+        Label {
+          Text: "Cooldown (seconds)";
+          Style: (FontSize: 13, TextColor: #cccccc, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+
+        TextButton #CooldownMinus {
+          Anchor: (Height: 24, Width: 32);
+          Padding: (Left: 8, Right: 8, Top: 5, Bottom: 5);
+          Text: "-";
+          Style: $S.@SmallButtonStyle;
+        }
+
+        Label #CooldownValue {
+          Text: "0s";
+          Style: (FontSize: 14, RenderBold: true, TextColor: #88ff88, HorizontalAlignment: Center, VerticalAlignment: Center);
+          Anchor: (Width: 50);
+        }
+
+        TextButton #CooldownPlus {
+          Anchor: (Height: 24, Width: 32);
+          Padding: (Left: 8, Right: 8, Top: 5, Bottom: 5);
+          Text: "+";
+          Style: $S.@SmallButtonStyle;
+        }
+      }
+
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 32);
+
+        Label {
+          Text: "Default Home Limit";
+          Style: (FontSize: 13, TextColor: #cccccc, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+
+        TextButton #LimitMinus {
+          Anchor: (Height: 24, Width: 32);
+          Padding: (Left: 8, Right: 8, Top: 5, Bottom: 5);
+          Text: "-";
+          Style: $S.@SmallButtonStyle;
+        }
+
+        Label #LimitValue {
+          Text: "5";
+          Style: (FontSize: 14, RenderBold: true, TextColor: #88ff88, HorizontalAlignment: Center, VerticalAlignment: Center);
+          Anchor: (Width: 50);
+        }
+
+        TextButton #LimitPlus {
+          Anchor: (Height: 24, Width: 32);
+          Padding: (Left: 8, Right: 8, Top: 5, Bottom: 5);
+          Text: "+";
+          Style: $S.@SmallButtonStyle;
+        }
+      }
+    }
+
+    Label {
+      Text: "Behavior";
+      Style: (FontSize: 15, RenderBold: true, TextColor: #93844c);
+      Anchor: (Bottom: 12);
+    }
+
+    Group {
+      LayoutMode: Top;
+      Background: $C.@InputBoxBackground;
+      Padding: (Full: 15);
+      Anchor: (Bottom: 20);
+
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 32, Bottom: 8);
+
+        Label {
+          Text: "Cancel on Movement";
+          Style: (FontSize: 13, TextColor: #cccccc, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+
+        TextButton #CancelMoveToggle {
+          Anchor: (Height: 24, Width: 60);
+          Padding: (Left: 10, Right: 10, Top: 5, Bottom: 5);
+          Text: "ON";
+          Style: $S.@SmallGreenButtonStyle;
+        }
+      }
+
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 32);
+
+        Label {
+          Text: "Cancel on Damage";
+          Style: (FontSize: 13, TextColor: #cccccc, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+
+        TextButton #CancelDamageToggle {
+          Anchor: (Height: 24, Width: 60);
+          Padding: (Left: 10, Right: 10, Top: 5, Bottom: 5);
+          Text: "ON";
+          Style: $S.@SmallGreenButtonStyle;
+        }
+      }
+    }
+
+    TextButton #SaveBtn {
+      Anchor: (Height: 34);
+      Padding: (Left: 16, Right: 16, Top: 8, Bottom: 8);
+      Text: "SAVE CHANGES";
+      Style: $S.@GreenButtonStyle;
+    }
+  }
+}
+
+$C.@BackButton {}

@@ -1,0 +1,33 @@
+# Gradle
+.gradle/
+build/
+bin/
+out/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local/Sensitive
+local.properties
+*.local
+*.env
+secrets/
+
+# Serena/Claude cache
+.serena/
+.claude/
+
+# Development prompts
+*_PROMPT.md

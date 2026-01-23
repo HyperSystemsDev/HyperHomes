@@ -1,0 +1,26 @@
+{
+  "defaultHomeLimit": 3,
+  "teleport": {
+    "warmup": 3,
+    "cooldown": 5,
+    "cancelOnMove": true,
+    "cancelOnDamage": true,
+    "allowCrossWorld": true
+  },
+  "safety": {
+    "safeTeleport": true,
+    "safeRadius": 3
+  },
+  "messages": {
+    "prefix": "\u00a76[HyperHomes]\u00a7r ",
+    "homeSet": "\u00a7aHome '%name%' has been set!",
+    "homeDeleted": "\u00a7aHome '%name%' has been deleted.",
+    "teleporting": "\u00a7eTeleporting to '%name%' in %seconds% seconds...",
+    "teleportCancelled": "\u00a7cTeleportation cancelled.",
+    "homeNotFound": "\u00a7cHome '%name%' not found.",
+    "homeLimitReached": "\u00a7cYou have reached your home limit (%limit%).",
+    "noHomes": "\u00a77You don't have any homes set.",
+    "teleportSuccess": "\u00a7aTeleported to '%name%'.",
+    "onCooldown": "\u00a7cYou must wait %time% before teleporting again."
+  }
+}

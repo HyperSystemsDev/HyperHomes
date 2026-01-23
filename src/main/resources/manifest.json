@@ -1,0 +1,11 @@
+{
+  "Group": "com.hyperhomes",
+  "Name": "HyperHomes",
+  "Version": "0.1.0",
+  "Description": "Personal home location management for Hytale servers. Part of the HyperSystems plugin suite.",
+  "Website": "https://github.com/hypersystems",
+  "Main": "com.hyperhomes.platform.HyperHomesPlugin",
+  "ServerVersion": "*",
+  "SoftDependencies": ["HyperPerms"],
+  "IncludesAssetPack": true
+}

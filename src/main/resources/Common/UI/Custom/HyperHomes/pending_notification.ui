@@ -1,0 +1,35 @@
+$C = "../Common.ui";
+$S = "styles.ui";
+
+Group {
+  Background: $C.@InputBoxBackground;
+  Padding: (Full: 12);
+  Anchor: (Height: 50, Bottom: 10);
+  LayoutMode: Left;
+
+  Label {
+    Text: "New share request from ";
+    Style: (FontSize: 12, TextColor: #cccccc, VerticalAlignment: Center);
+  }
+
+  Label #PendingOwnerName {
+    Text: "Player";
+    Style: (FontSize: 13, RenderBold: true, TextColor: #4a9eff, VerticalAlignment: Center);
+  }
+
+  Label {
+    Text: "!";
+    Style: (FontSize: 12, TextColor: #cccccc, VerticalAlignment: Center);
+  }
+
+  Label {
+    FlexWeight: 1;
+  }
+
+  TextButton #ViewPendingBtn {
+    Anchor: (Height: 26, Width: 90);
+    Padding: (Left: 10, Right: 10, Top: 5, Bottom: 5);
+    Text: "VIEW";
+    Style: $S.@GreenButtonStyle;
+  }
+}

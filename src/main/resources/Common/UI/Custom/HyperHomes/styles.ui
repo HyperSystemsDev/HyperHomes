@@ -1,0 +1,147 @@
+// HyperHomes Shared Styles
+// Centralized style definitions for consistent UI appearance
+
+$C = "../Common.ui";
+
+// =============================================================================
+// COLORS
+// =============================================================================
+// Section titles: #93844c (gold accent from AdminUI)
+// Home names: #FFAA00 (orange-gold)
+// Player names: #4a9eff (blue)
+// Primary text: #cccccc
+// Muted text: #888888
+// Secondary/coords: #6a6a8a
+// Success: #44cc44
+// Danger: #ff5555
+// Values: #88ff88
+
+// =============================================================================
+// LABEL STYLES
+// =============================================================================
+
+// Default button label style - neutral color
+@ButtonLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #bfcdd5,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+// Green button label style - for success actions
+@GreenLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #44cc44,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+// Red button label style - for danger actions
+@RedLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #ff5555,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+// Gold button label style - for highlighted actions
+@GoldLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #FFAA00,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+// Small button label style
+@SmallButtonLabelStyle = LabelStyle(
+  FontSize: 12,
+  TextColor: #bfcdd5,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+@SmallGreenLabelStyle = LabelStyle(
+  FontSize: 12,
+  TextColor: #44cc44,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+@SmallRedLabelStyle = LabelStyle(
+  FontSize: 12,
+  TextColor: #ff5555,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+// =============================================================================
+// BUTTON STYLES (with proper hover states!)
+// =============================================================================
+
+// Default button style - neutral
+@ButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @ButtonLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @ButtonLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @ButtonLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @ButtonLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Green button style - for success/confirm actions
+@GreenButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GreenLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GreenLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GreenLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @GreenLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Red button style - for danger/cancel actions
+@RedButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @RedLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @RedLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @RedLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @RedLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Gold button style - for highlighted actions
+@GoldButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GoldLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GoldLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GoldLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @GoldLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Small button styles
+@SmallButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @SmallButtonLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @SmallButtonLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @SmallButtonLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @SmallButtonLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+@SmallGreenButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @SmallGreenLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @SmallGreenLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @SmallGreenLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @SmallGreenLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+@SmallRedButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @SmallRedLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @SmallRedLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @SmallRedLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @SmallRedLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);

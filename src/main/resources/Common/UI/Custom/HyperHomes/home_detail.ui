@@ -1,0 +1,159 @@
+$C = "../Common.ui";
+$S = "styles.ui";
+
+$C.@PageOverlay {}
+
+$C.@Container {
+  Anchor: (Width: 460, Height: 380);
+
+  #Title {
+    $C.@Title {
+      @Text = "Home Details";
+    }
+  }
+
+  #Content {
+    LayoutMode: Top;
+    Padding: (Left: 20, Right: 20, Top: 15);
+
+    Group {
+      Background: $C.@InputBoxBackground;
+      Padding: (Full: 15);
+      LayoutMode: Top;
+      Anchor: (Bottom: 15);
+
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 28, Bottom: 8);
+
+        Label {
+          Text: "Name:";
+          Style: (FontSize: 13, TextColor: #888888, VerticalAlignment: Center);
+          Anchor: (Width: 85);
+        }
+
+        Label #HomeName {
+          Text: "Home";
+          Style: (FontSize: 16, RenderBold: true, TextColor: #FFAA00, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+      }
+
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 24, Bottom: 6);
+
+        Label {
+          Text: "World:";
+          Style: (FontSize: 13, TextColor: #888888, VerticalAlignment: Center);
+          Anchor: (Width: 85);
+        }
+
+        Label #WorldName {
+          Text: "Unknown";
+          Style: (FontSize: 13, TextColor: #cccccc, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+      }
+
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 24, Bottom: 6);
+
+        Label {
+          Text: "Position:";
+          Style: (FontSize: 13, TextColor: #888888, VerticalAlignment: Center);
+          Anchor: (Width: 85);
+        }
+
+        Label #Coords {
+          Text: "0, 0, 0";
+          Style: (FontSize: 13, TextColor: #cccccc, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+      }
+
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 24);
+
+        Label {
+          Text: "Last Used:";
+          Style: (FontSize: 13, TextColor: #888888, VerticalAlignment: Center);
+          Anchor: (Width: 85);
+        }
+
+        Label #LastUsed {
+          Text: "Never";
+          Style: (FontSize: 13, TextColor: #cccccc, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+      }
+    }
+
+    Group #ShareInfo {
+      Visible: false;
+      Background: $C.@InputBoxBackground;
+      Padding: (Full: 12);
+      LayoutMode: Left;
+      Anchor: (Height: 45, Bottom: 15);
+
+      Label {
+        Text: "Shared with:";
+        Style: (FontSize: 13, TextColor: #888888, VerticalAlignment: Center);
+      }
+
+      Label #SharedCount {
+        Text: "0 players";
+        Style: (FontSize: 13, RenderBold: true, TextColor: #4a9eff, VerticalAlignment: Center);
+        Anchor: (Left: 8);
+      }
+
+      Label {
+        FlexWeight: 1;
+      }
+
+      TextButton #ManageShareBtn {
+        Anchor: (Height: 24, Width: 90);
+        Padding: (Left: 10, Right: 10, Top: 5, Bottom: 5);
+        Text: "MANAGE";
+        Style: $S.@SmallButtonStyle;
+      }
+    }
+
+    Label {
+      FlexWeight: 1;
+    }
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 36, Bottom: 10);
+
+      TextButton #TeleportBtn {
+        FlexWeight: 1;
+        Anchor: (Height: 30, Right: 6);
+        Padding: (Left: 10, Right: 10, Top: 6, Bottom: 6);
+        Text: "TELEPORT";
+        Style: $S.@GreenButtonStyle;
+      }
+
+      TextButton #ShareBtn {
+        FlexWeight: 1;
+        Anchor: (Height: 30, Right: 6);
+        Padding: (Left: 10, Right: 10, Top: 6, Bottom: 6);
+        Text: "SHARE";
+        Style: $S.@ButtonStyle;
+      }
+
+      TextButton #DeleteBtn {
+        FlexWeight: 1;
+        Anchor: (Height: 30);
+        Padding: (Left: 10, Right: 10, Top: 6, Bottom: 6);
+        Text: "DELETE";
+        Style: $S.@RedButtonStyle;
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

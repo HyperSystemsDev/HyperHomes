@@ -1,0 +1,105 @@
+$C = "../Common.ui";
+$S = "styles.ui";
+
+$C.@PageOverlay {}
+
+$C.@Container {
+  Anchor: (Width: 550, Height: 470);
+
+  #Title {
+    $C.@Title {
+      @Text = "Shared With Me";
+    }
+  }
+
+  #Content {
+    LayoutMode: Top;
+    Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+    Group #PendingNotification {
+      Anchor: (Height: 0);
+    }
+
+    Group {
+      Anchor: (Height: 35, Bottom: 10);
+      LayoutMode: Left;
+
+      Label #SharedCount {
+        Text: "0 shared homes";
+        Style: (FontSize: 14, TextColor: #888888, VerticalAlignment: Center);
+      }
+
+      Label {
+        FlexWeight: 1;
+      }
+
+      TextButton #NavHomes {
+        Text: "MY HOMES";
+        Anchor: (Height: 26, Width: 110);
+        Padding: (Left: 10, Right: 10, Top: 5, Bottom: 5);
+        Style: $S.@GoldButtonStyle;
+      }
+    }
+
+    Group {
+      Anchor: (Height: 1, Bottom: 8);
+      Background: (Color: #93844c);
+    }
+
+    Group #SharedListContainer {
+      LayoutMode: TopScrolling;
+      ScrollbarStyle: $C.@DefaultScrollbarStyle;
+      FlexWeight: 1;
+
+      Group #SharedList {
+        LayoutMode: Top;
+
+        Group #SharedEntry0 { Anchor: (Height: 65); }
+        Group #SharedEntry1 { Anchor: (Height: 65); }
+        Group #SharedEntry2 { Anchor: (Height: 65); }
+        Group #SharedEntry3 { Anchor: (Height: 65); }
+        Group #SharedEntry4 { Anchor: (Height: 65); }
+      }
+    }
+
+    Group {
+      Anchor: (Height: 1, Top: 8, Bottom: 8);
+      Background: (Color: #93844c);
+    }
+
+    Group #Pagination {
+      Anchor: (Height: 35);
+      LayoutMode: Left;
+
+      TextButton #PrevBtn {
+        Text: "< PREV";
+        Anchor: (Height: 26, Width: 80);
+        Padding: (Left: 10, Right: 10, Top: 5, Bottom: 5);
+        Style: $S.@ButtonStyle;
+      }
+
+      Label {
+        FlexWeight: 1;
+      }
+
+      Label #PageInfo {
+        Text: "1/1";
+        Style: (FontSize: 14, TextColor: #888888, HorizontalAlignment: Center, VerticalAlignment: Center);
+        Anchor: (Width: 60);
+      }
+
+      Label {
+        FlexWeight: 1;
+      }
+
+      TextButton #NextBtn {
+        Text: "NEXT >";
+        Anchor: (Height: 26, Width: 80);
+        Padding: (Left: 10, Right: 10, Top: 5, Bottom: 5);
+        Style: $S.@ButtonStyle;
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

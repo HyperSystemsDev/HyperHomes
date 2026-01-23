@@ -1,0 +1,92 @@
+$C = "../Common.ui";
+$S = "styles.ui";
+
+$C.@PageOverlay {}
+
+$C.@Container {
+  Anchor: (Width: 460, Height: 420);
+
+  #Title {
+    $C.@Title {
+      @Text = "Manage Sharing";
+    }
+  }
+
+  #Content {
+    LayoutMode: Top;
+    Padding: (Left: 20, Right: 20, Top: 15);
+
+    Group {
+      Background: $C.@InputBoxBackground;
+      Padding: (Full: 12);
+      LayoutMode: Left;
+      Anchor: (Height: 40, Bottom: 15);
+
+      Label {
+        Text: "Home:";
+        Style: (FontSize: 13, TextColor: #888888, VerticalAlignment: Center);
+      }
+
+      Label #HomeName {
+        Text: "Home";
+        Style: (FontSize: 15, RenderBold: true, TextColor: #FFAA00, VerticalAlignment: Center);
+        FlexWeight: 1;
+        Anchor: (Left: 8);
+      }
+    }
+
+    Label {
+      Text: "Shared With";
+      Style: (FontSize: 14, RenderBold: true, TextColor: #93844c);
+      Anchor: (Bottom: 10);
+    }
+
+    Group #SharedPlayersList {
+      LayoutMode: TopScrolling;
+      ScrollbarStyle: $C.@DefaultScrollbarStyle;
+      Background: $C.@InputBoxBackground;
+      Anchor: (Height: 150, Bottom: 15);
+      Padding: (Full: 10);
+
+      Group #PlayersList {
+        LayoutMode: Top;
+
+        Label #NoSharedLabel {
+          Text: "Not shared with anyone";
+          Style: (FontSize: 12, TextColor: #6a6a8a, HorizontalAlignment: Center);
+          Anchor: (Height: 35);
+        }
+
+        Group #SharedPlayer0 { Anchor: (Height: 36); }
+        Group #SharedPlayer1 { Anchor: (Height: 36); }
+        Group #SharedPlayer2 { Anchor: (Height: 36); }
+        Group #SharedPlayer3 { Anchor: (Height: 36); }
+      }
+    }
+
+    Label {
+      Text: "Add Player";
+      Style: (FontSize: 14, RenderBold: true, TextColor: #93844c);
+      Anchor: (Bottom: 10);
+    }
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 38);
+
+      $C.@TextField #PlayerNameInput {
+        FlexWeight: 1;
+        Anchor: (Height: 30, Right: 10);
+      }
+
+      TextButton #AddShareBtn {
+        Anchor: (Height: 28, Width: 80);
+        Padding: (Left: 10, Right: 10, Top: 5, Bottom: 5);
+        Text: "SHARE";
+        Style: $S.@GreenButtonStyle;
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

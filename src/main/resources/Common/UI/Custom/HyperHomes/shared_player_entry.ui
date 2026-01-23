@@ -1,0 +1,21 @@
+$C = "../Common.ui";
+$S = "styles.ui";
+
+Group #PlayerRow {
+  LayoutMode: Left;
+  Padding: (Full: 6);
+  Anchor: (Height: 32);
+
+  Label #PlayerName {
+    Text: "Player";
+    Style: (FontSize: 13, TextColor: #4a9eff, VerticalAlignment: Center);
+    FlexWeight: 1;
+  }
+
+  TextButton #RemoveBtn {
+    Anchor: (Height: 22, Width: 70);
+    Padding: (Left: 8, Right: 8, Top: 4, Bottom: 4);
+    Text: "REMOVE";
+    Style: $S.@SmallRedButtonStyle;
+  }
+}

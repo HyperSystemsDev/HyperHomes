@@ -1,0 +1,89 @@
+$C = "../Common.ui";
+$S = "styles.ui";
+
+$C.@PageOverlay {}
+
+$C.@Container {
+  Anchor: (Width: 420, Height: 250);
+
+  #Title {
+    $C.@Title {
+      @Text = "Share Request";
+    }
+  }
+
+  #Content {
+    LayoutMode: Top;
+    Padding: (Left: 25, Right: 25, Top: 15);
+
+    Group {
+      Background: $C.@InputBoxBackground;
+      Padding: (Full: 18);
+      LayoutMode: Top;
+      Anchor: (Height: 95, Bottom: 20);
+
+      Label {
+        Text: "wants to share their home with you:";
+        Style: (FontSize: 13, TextColor: #888888, HorizontalAlignment: Center);
+        Anchor: (Bottom: 12);
+      }
+
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 24);
+
+        Label {
+          FlexWeight: 1;
+        }
+
+        Label #OwnerName {
+          Text: "Player";
+          Style: (FontSize: 16, RenderBold: true, TextColor: #4a9eff);
+        }
+
+        Label {
+          Text: "'s home: ";
+          Style: (FontSize: 13, TextColor: #888888, VerticalAlignment: Center);
+        }
+
+        Label #HomeName {
+          Text: "home";
+          Style: (FontSize: 16, RenderBold: true, TextColor: #FFAA00);
+        }
+
+        Label {
+          FlexWeight: 1;
+        }
+      }
+    }
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 40);
+
+      Label {
+        FlexWeight: 1;
+      }
+
+      TextButton #AcceptBtn {
+        Anchor: (Height: 32, Width: 110, Right: 12);
+        Padding: (Left: 14, Right: 14, Top: 7, Bottom: 7);
+        Text: "ACCEPT";
+        Style: $S.@GreenButtonStyle;
+      }
+
+      TextButton #DeclineBtn {
+        Anchor: (Height: 32, Width: 110);
+        Padding: (Left: 14, Right: 14, Top: 7, Bottom: 7);
+        Text: "DECLINE";
+        Style: $S.@RedButtonStyle;
+      }
+
+      Label {
+        FlexWeight: 1;
+      }
+    }
+  }
+}
+
+$C.@BackButton {}
