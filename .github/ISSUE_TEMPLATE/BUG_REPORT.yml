@@ -81,7 +81,7 @@ body:
     id: informationContext
     attributes:
       label: Additional information
-      description: If available, please add any additional information you may find useful to help us understand the issue.
+      description: If available, please add any additional information you may find useful to help us understand the issue, such as list of installed plugins.
 
   - type: checkboxes
     id: checklist
