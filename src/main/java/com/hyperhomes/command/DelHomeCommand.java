@@ -1,9 +1,9 @@
 package com.hyperhomes.command;
 
 import com.hyperhomes.HyperHomes;
-import com.hyperhomes.integration.HyperPermsIntegration;
+import com.hyperhomes.integration.PermissionManager;
 import com.hyperhomes.manager.HomeManager;
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -72,7 +72,7 @@ public class DelHomeCommand extends AbstractPlayerCommand {
         UUID uuid = playerRef.getUuid();
 
         // Permission check
-        if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.delete")) {
+        if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.delete")) {
             ctx.sendMessage(prefix()
                 .insert(Message.raw("You don't have permission to delete homes.").color(COLOR_RED)));
             return;

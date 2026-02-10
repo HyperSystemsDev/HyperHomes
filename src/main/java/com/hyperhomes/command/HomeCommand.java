@@ -1,13 +1,13 @@
 package com.hyperhomes.command;
 
 import com.hyperhomes.HyperHomes;
-import com.hyperhomes.config.HyperHomesConfig;
+import com.hyperhomes.config.ConfigManager;
 import com.hyperhomes.gui.UIHelper;
-import com.hyperhomes.integration.HyperPermsIntegration;
+import com.hyperhomes.integration.PermissionManager;
 import com.hyperhomes.manager.HomeManager;
 import com.hyperhomes.manager.TeleportManager;
-import com.hyperhomes.model.Home;
-import com.hyperhomes.model.Location;
+import com.hyperhomes.data.Home;
+import com.hyperhomes.data.Location;
 import com.hyperhomes.platform.HyperHomesPlugin;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -142,7 +142,7 @@ public class HomeCommand extends AbstractPlayerCommand {
         UUID uuid = playerRef.getUuid();
 
         // Permission check
-        if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.use")) {
+        if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.use")) {
             ctx.sendMessage(prefix()
                 .insert(Message.raw("You don't have permission to use this command.").color(COLOR_RED)));
             return;
@@ -150,7 +150,7 @@ public class HomeCommand extends AbstractPlayerCommand {
 
         HomeManager homeManager = plugin.getHomeManager();
         TeleportManager teleportManager = plugin.getTeleportManager();
-        HyperHomesConfig config = HyperHomesConfig.get();
+        ConfigManager config = ConfigManager.get();
 
         // Parse home target (own or shared)
         HomeTarget target = parseHomeTarget(ctx, homeManager);
@@ -311,7 +311,7 @@ public class HomeCommand extends AbstractPlayerCommand {
         World targetWorld = Universe.get().getWorld(home.world());
         if (targetWorld == null) {
             // Fall back to current world if home world doesn't exist
-            if (!HyperHomesConfig.get().isAllowCrossWorld()) {
+            if (!ConfigManager.get().isAllowCrossWorld()) {
                 return TeleportManager.TeleportResult.WORLD_NOT_FOUND;
             }
             targetWorld = currentWorld;

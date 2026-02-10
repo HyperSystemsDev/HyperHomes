@@ -1,6 +1,6 @@
 package com.hyperhomes.storage;
 
-import com.hyperhomes.model.PlayerHomes;
+import com.hyperhomes.data.PlayerHomes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Interface for storage providers that persist player home data.
  */
-public interface StorageProvider {
+public interface HomeStorage {
 
     /**
      * Initializes the storage provider.

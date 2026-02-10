@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.hyperhomes.model.Home;
-import com.hyperhomes.model.PlayerHomes;
-import com.hyperhomes.storage.StorageProvider;
+import com.hyperhomes.data.Home;
+import com.hyperhomes.data.PlayerHomes;
+import com.hyperhomes.storage.HomeStorage;
 import com.hyperhomes.util.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,18 +27,13 @@ import java.util.concurrent.CompletableFuture;
  * JSON file-based storage provider.
  * Stores player homes in individual JSON files.
  */
-public class JsonStorageProvider implements StorageProvider {
+public class JsonHomeStorage implements HomeStorage {
 
     private final Path dataDir;
     private final Path playersDir;
     private final Gson gson;
 
-    /**
-     * Creates a new JSON storage provider.
-     *
-     * @param dataDir the plugin data directory
-     */
-    public JsonStorageProvider(@NotNull Path dataDir) {
+    public JsonHomeStorage(@NotNull Path dataDir) {
         this.dataDir = dataDir;
         this.playersDir = dataDir.resolve("players");
         this.gson = new GsonBuilder()
@@ -148,7 +143,6 @@ public class JsonStorageProvider implements StorageProvider {
         obj.addProperty("createdAt", home.createdAt());
         obj.addProperty("lastUsed", home.lastUsed());
 
-        // Serialize shared players
         if (!home.sharedWith().isEmpty()) {
             JsonArray sharedArray = new JsonArray();
             for (UUID sharedUuid : home.sharedWith()) {
@@ -161,16 +155,13 @@ public class JsonStorageProvider implements StorageProvider {
     }
 
     private Home deserializeHome(JsonObject obj) {
-        // Deserialize shared players
         Set<UUID> sharedWith = new HashSet<>();
         if (obj.has("sharedWith") && obj.get("sharedWith").isJsonArray()) {
             JsonArray sharedArray = obj.getAsJsonArray("sharedWith");
             for (var element : sharedArray) {
                 try {
                     sharedWith.add(UUID.fromString(element.getAsString()));
-                } catch (IllegalArgumentException ignored) {
-                    // Skip invalid UUIDs
-                }
+                } catch (IllegalArgumentException ignored) {}
             }
         }
 

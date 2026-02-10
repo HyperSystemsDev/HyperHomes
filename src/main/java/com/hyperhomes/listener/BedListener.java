@@ -1,9 +1,9 @@
 package com.hyperhomes.listener;
 
 import com.hyperhomes.HyperHomes;
-import com.hyperhomes.config.HyperHomesConfig;
+import com.hyperhomes.config.ConfigManager;
 import com.hyperhomes.manager.HomeManager;
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import com.hyperhomes.util.Logger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -51,7 +51,7 @@ public class BedListener {
                               double x, double y, double z,
                               float yaw, float pitch) {
 
-        HyperHomesConfig config = HyperHomesConfig.get();
+        ConfigManager config = ConfigManager.get();
 
         // Check if bed sync is enabled
         if (!config.isBedSyncEnabled()) {

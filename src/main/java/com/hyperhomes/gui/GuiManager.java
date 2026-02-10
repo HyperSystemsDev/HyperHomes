@@ -11,7 +11,7 @@ import com.hyperhomes.gui.page.admin.AdminSettingsPage;
 import com.hyperhomes.manager.HomeManager;
 import com.hyperhomes.manager.PendingShareManager;
 import com.hyperhomes.manager.TeleportManager;
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import com.hyperhomes.util.Logger;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -34,6 +34,7 @@ public class GuiManager {
     private final Supplier<TeleportManager> teleportManager;
     private final Supplier<Path> dataDir;
     private final Supplier<PendingShareManager> pendingShareManager;
+    private final ActivePageTracker pageTracker;
 
     public GuiManager(Supplier<HyperHomes> plugin,
                       Supplier<HomeManager> homeManager,
@@ -45,6 +46,7 @@ public class GuiManager {
         this.teleportManager = teleportManager;
         this.dataDir = dataDir;
         this.pendingShareManager = pendingShareManager;
+        this.pageTracker = new ActivePageTracker();
     }
 
     /**
@@ -67,6 +69,7 @@ public class GuiManager {
                 this
             );
             Logger.debug("[GUI] HomesListPage created, opening custom page...");
+            pageTracker.setActivePage(playerRef.getUuid(), GuiType.HOMES);
             pageManager.openCustomPage(ref, store, page);
             Logger.debug("[GUI] HomesListPage opened successfully");
         } catch (Exception e) {
@@ -97,6 +100,7 @@ public class GuiManager {
                 this,
                 home
             );
+            pageTracker.setActivePage(playerRef.getUuid(), GuiType.HOME_DETAIL);
             pageManager.openCustomPage(ref, store, page);
             Logger.debug("[GUI] HomeDetailPage opened successfully");
         } catch (Exception e) {
@@ -124,6 +128,7 @@ public class GuiManager {
                 teleportManager.get(),
                 this
             );
+            pageTracker.setActivePage(playerRef.getUuid(), GuiType.SHARED);
             pageManager.openCustomPage(ref, store, page);
             Logger.debug("[GUI] SharedHomesPage opened successfully");
         } catch (Exception e) {
@@ -154,6 +159,7 @@ public class GuiManager {
                 this,
                 home
             );
+            pageTracker.setActivePage(playerRef.getUuid(), GuiType.SHARE_MANAGE);
             pageManager.openCustomPage(ref, store, page);
             Logger.debug("[GUI] ShareManagePage opened successfully");
         } catch (Exception e) {
@@ -188,6 +194,7 @@ public class GuiManager {
                 this,
                 request
             );
+            pageTracker.setActivePage(playerRef.getUuid(), GuiType.SHARE_CONFIRM);
             pageManager.openCustomPage(ref, store, page);
             Logger.debug("[GUI] ShareConfirmPage opened successfully");
         } catch (Exception e) {
@@ -215,6 +222,7 @@ public class GuiManager {
                 homeManager.get(),
                 this
             );
+            pageTracker.setActivePage(playerRef.getUuid(), GuiType.ADMIN);
             pageManager.openCustomPage(ref, store, page);
             Logger.debug("[GUI] AdminMainPage opened successfully");
         } catch (Exception e) {
@@ -242,6 +250,7 @@ public class GuiManager {
                 this,
                 dataDir.get()
             );
+            pageTracker.setActivePage(playerRef.getUuid(), GuiType.ADMIN_SETTINGS);
             pageManager.openCustomPage(ref, store, page);
             Logger.debug("[GUI] AdminSettingsPage opened successfully");
         } catch (Exception e) {
@@ -258,8 +267,26 @@ public class GuiManager {
      * @param store  The entity store
      */
     public void closePage(Player player, Ref<EntityStore> ref, Store<EntityStore> store) {
+        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
+        if (playerRef != null) {
+            pageTracker.clearActivePage(playerRef.getUuid());
+        }
         player.getPageManager().setPage(ref, store,
                 com.hypixel.hytale.protocol.packets.interface_.Page.None);
+    }
+
+    /**
+     * Clears tracking for a player (call on disconnect).
+     */
+    public void clearPlayer(java.util.UUID uuid) {
+        pageTracker.clearActivePage(uuid);
+    }
+
+    /**
+     * Gets the page tracker.
+     */
+    public ActivePageTracker getPageTracker() {
+        return pageTracker;
     }
 
     /**

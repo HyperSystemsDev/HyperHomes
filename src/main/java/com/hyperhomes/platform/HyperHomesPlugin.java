@@ -6,13 +6,13 @@ import com.hyperhomes.command.DelHomeCommand;
 import com.hyperhomes.command.HomeCommand;
 import com.hyperhomes.command.HomesCommand;
 import com.hyperhomes.command.SetHomeCommand;
-import com.hyperhomes.config.HyperHomesConfig;
+import com.hyperhomes.config.ConfigManager;
 import com.hyperhomes.gui.GuiManager;
 import com.hyperhomes.gui.UIHelper;
 import com.hyperhomes.listener.BedListener;
 import com.hyperhomes.listener.PlayerListener;
 import com.hyperhomes.manager.TeleportManager;
-import com.hyperhomes.model.Location;
+import com.hyperhomes.data.Location;
 import com.hyperhomes.util.Logger;
 import com.hypixel.hytale.component.Archetype;
 import com.hypixel.hytale.component.ArchetypeChunk;
@@ -428,7 +428,7 @@ public class HyperHomesPlugin extends JavaPlugin {
      * Checks all players with pending teleports for movement.
      */
     private void checkAllPendingMovement() {
-        if (!HyperHomesConfig.get().isCancelOnMove()) {
+        if (!ConfigManager.get().isCancelOnMove()) {
             return;
         }
 
@@ -520,7 +520,7 @@ public class HyperHomesPlugin extends JavaPlugin {
                            Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer,
                            Damage damage) {
             try {
-                if (!HyperHomesConfig.get().isCancelOnDamage()) {
+                if (!ConfigManager.get().isCancelOnDamage()) {
                     return;
                 }
 

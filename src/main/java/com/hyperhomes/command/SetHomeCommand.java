@@ -1,9 +1,11 @@
 package com.hyperhomes.command;
 
 import com.hyperhomes.HyperHomes;
-import com.hyperhomes.integration.HyperPermsIntegration;
+import com.hyperhomes.config.ConfigManager;
+import com.hyperhomes.integration.HyperFactionsIntegration;
+import com.hyperhomes.integration.PermissionManager;
 import com.hyperhomes.manager.HomeManager;
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3f;
@@ -78,7 +80,7 @@ public class SetHomeCommand extends AbstractPlayerCommand {
         UUID uuid = playerRef.getUuid();
 
         // Permission check
-        if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.set")) {
+        if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.set")) {
             ctx.sendMessage(prefix()
                 .insert(Message.raw("You don't have permission to set homes.").color(COLOR_RED)));
             return;
@@ -109,6 +111,15 @@ public class SetHomeCommand extends AbstractPlayerCommand {
         Vector3f rotation = headRotation != null ? headRotation.getRotation() : new Vector3f(0, 0, 0);
 
         var pos = transform.getPosition();
+
+        // Check territory restriction (HyperFactions integration)
+        if (ConfigManager.get().isRestrictHomesInEnemyTerritory()
+                && HyperFactionsIntegration.isAvailable()
+                && !HyperFactionsIntegration.canSetHomeAtLocation(uuid, world.getName(), pos.getX(), pos.getZ())) {
+            ctx.sendMessage(prefix()
+                .insert(Message.raw("You cannot set a home in enemy territory!").color(COLOR_RED)));
+            return;
+        }
 
         // Check if this would be an update or new home
         boolean isUpdate = homeManager.getHome(uuid, homeName) != null;

@@ -4,7 +4,7 @@ import com.hyperhomes.gui.GuiManager;
 import com.hyperhomes.gui.data.ShareManageData;
 import com.hyperhomes.manager.HomeManager;
 import com.hyperhomes.manager.PendingShareManager;
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;

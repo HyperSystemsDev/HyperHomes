@@ -2,7 +2,7 @@ package com.hyperhomes.listener;
 
 import com.hyperhomes.HyperHomes;
 import com.hyperhomes.manager.TeleportManager;
-import com.hyperhomes.model.Location;
+import com.hyperhomes.data.Location;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;

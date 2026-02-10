@@ -1,6 +1,6 @@
 package com.hyperhomes.gui;
 
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import com.hypixel.hytale.server.core.Message;
 
 import java.util.HashMap;

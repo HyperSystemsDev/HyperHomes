@@ -3,7 +3,7 @@ package com.hyperhomes.migration;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import com.hyperhomes.util.Logger;
 import org.jetbrains.annotations.NotNull;
 

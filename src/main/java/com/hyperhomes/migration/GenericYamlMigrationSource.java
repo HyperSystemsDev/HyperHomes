@@ -1,6 +1,6 @@
 package com.hyperhomes.migration;
 
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import com.hyperhomes.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

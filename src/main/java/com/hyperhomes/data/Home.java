@@ -1,4 +1,4 @@
-package com.hyperhomes.model;
+package com.hyperhomes.data;
 
 import org.jetbrains.annotations.NotNull;
 

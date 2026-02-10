@@ -1,14 +1,15 @@
 package com.hyperhomes;
 
-import com.hyperhomes.config.HyperHomesConfig;
-import com.hyperhomes.integration.HyperPermsIntegration;
+import com.hyperhomes.config.ConfigManager;
+import com.hyperhomes.integration.HyperFactionsIntegration;
+import com.hyperhomes.integration.PermissionManager;
 import com.hyperhomes.manager.HomeManager;
 import com.hyperhomes.manager.PendingShareManager;
 import com.hyperhomes.manager.TeleportManager;
 import com.hyperhomes.migration.MigrationManager;
-import com.hyperhomes.model.Home;
-import com.hyperhomes.storage.StorageProvider;
-import com.hyperhomes.storage.json.JsonStorageProvider;
+import com.hyperhomes.data.Home;
+import com.hyperhomes.storage.HomeStorage;
+import com.hyperhomes.storage.json.JsonHomeStorage;
 import com.hyperhomes.update.UpdateChecker;
 import com.hyperhomes.util.Logger;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -28,13 +29,11 @@ import java.util.function.Consumer;
  */
 public class HyperHomes {
 
-    public static final String VERSION = "1.0.0";
-
     private final Path dataDir;
     private final java.util.logging.Logger javaLogger;
     @Nullable private UpdateChecker updateChecker;
 
-    private StorageProvider storage;
+    private HomeStorage storage;
     private HomeManager homeManager;
     private TeleportManager teleportManager;
     private PendingShareManager pendingShareManager;
@@ -107,13 +106,14 @@ public class HyperHomes {
         Logger.init(javaLogger);
 
         // Load configuration
-        HyperHomesConfig.get().load(dataDir);
+        ConfigManager.get().loadAll(dataDir);
 
-        // Initialize HyperPerms integration
-        HyperPermsIntegration.init();
+        // Initialize integrations
+        PermissionManager.get().init();
+        HyperFactionsIntegration.init();
 
         // Initialize storage
-        storage = new JsonStorageProvider(dataDir);
+        storage = new JsonHomeStorage(dataDir);
         storage.init().join();
 
         // Initialize managers
@@ -124,13 +124,13 @@ public class HyperHomes {
         migrationManager.init();
 
         // Initialize update checker
-        if (HyperHomesConfig.get().isUpdateCheckEnabled()) {
-            updateChecker = new UpdateChecker(this, VERSION, HyperHomesConfig.get().getUpdateCheckUrl());
+        if (ConfigManager.get().isUpdateCheckEnabled()) {
+            updateChecker = new UpdateChecker(this, BuildInfo.VERSION, ConfigManager.get().getUpdateCheckUrl());
             updateChecker.checkForUpdates().thenAccept(info -> {
                 if (info != null) {
                     Logger.info("===========================================");
                     Logger.info("A new version of HyperHomes is available!");
-                    Logger.info("Current: " + VERSION + " | Latest: " + info.version());
+                    Logger.info("Current: " + BuildInfo.VERSION + " | Latest: " + info.version());
                     Logger.info("===========================================");
                 }
             });
@@ -165,7 +165,7 @@ public class HyperHomes {
      * Reloads the configuration.
      */
     public void reloadConfig() {
-        HyperHomesConfig.get().reload(dataDir);
+        ConfigManager.get().reloadAll();
         Logger.info("Configuration reloaded");
     }
 
@@ -314,7 +314,7 @@ public class HyperHomes {
      * @return the storage provider
      */
     @NotNull
-    public StorageProvider getStorage() {
+    public HomeStorage getStorage() {
         return storage;
     }
 

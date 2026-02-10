@@ -1,7 +1,7 @@
 package com.hyperhomes.gui.page;
 
 import com.hyperhomes.HyperHomes;
-import com.hyperhomes.config.HyperHomesConfig;
+import com.hyperhomes.config.ConfigManager;
 import com.hyperhomes.gui.GuiManager;
 import com.hyperhomes.platform.HyperHomesPlugin;
 import com.hyperhomes.gui.UIHelper;
@@ -9,8 +9,8 @@ import com.hyperhomes.gui.data.HomesListData;
 import com.hyperhomes.manager.HomeManager;
 import com.hyperhomes.manager.PendingShareManager;
 import com.hyperhomes.manager.TeleportManager;
-import com.hyperhomes.model.Home;
-import com.hyperhomes.model.Location;
+import com.hyperhomes.data.Home;
+import com.hyperhomes.data.Location;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;

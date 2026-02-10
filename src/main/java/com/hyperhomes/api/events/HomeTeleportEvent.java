@@ -1,6 +1,6 @@
 package com.hyperhomes.api.events;
 
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;

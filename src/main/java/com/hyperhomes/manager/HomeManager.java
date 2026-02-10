@@ -1,10 +1,10 @@
 package com.hyperhomes.manager;
 
-import com.hyperhomes.config.HyperHomesConfig;
-import com.hyperhomes.integration.HyperPermsIntegration;
-import com.hyperhomes.model.Home;
-import com.hyperhomes.model.PlayerHomes;
-import com.hyperhomes.storage.StorageProvider;
+import com.hyperhomes.config.ConfigManager;
+import com.hyperhomes.integration.PermissionManager;
+import com.hyperhomes.data.Home;
+import com.hyperhomes.data.PlayerHomes;
+import com.hyperhomes.storage.HomeStorage;
 import com.hyperhomes.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class HomeManager {
 
-    private final StorageProvider storage;
+    private final HomeStorage storage;
     private final Map<UUID, PlayerHomes> cache;
 
     /**
@@ -32,7 +32,7 @@ public class HomeManager {
      *
      * @param storage the storage provider
      */
-    public HomeManager(@NotNull StorageProvider storage) {
+    public HomeManager(@NotNull HomeStorage storage) {
         this.storage = storage;
         this.cache = new ConcurrentHashMap<>();
     }
@@ -197,18 +197,18 @@ public class HomeManager {
      */
     public int getHomeLimit(@NotNull UUID uuid) {
         // Check for unlimited permission
-        if (HyperPermsIntegration.hasPermission(uuid, "hyperhomes.unlimited")) {
+        if (PermissionManager.get().hasPermission(uuid, "hyperhomes.unlimited")) {
             return -1;
         }
 
         // Check for specific limit permission
-        int limit = HyperPermsIntegration.getPermissionValue(uuid, "hyperhomes.limit.", -1);
+        int limit = PermissionManager.get().getPermissionValue(uuid, "hyperhomes.limit.", -1);
         if (limit >= 0) {
             return limit;
         }
 
         // Fall back to config default
-        return HyperHomesConfig.get().getDefaultHomeLimit();
+        return ConfigManager.get().getDefaultHomeLimit();
     }
 
     /**
@@ -219,7 +219,7 @@ public class HomeManager {
      */
     public long getRemainingCooldown(@NotNull UUID uuid) {
         // Check for cooldown bypass
-        if (HyperPermsIntegration.hasPermission(uuid, "hyperhomes.bypass.cooldown")) {
+        if (PermissionManager.get().hasPermission(uuid, "hyperhomes.bypass.cooldown")) {
             return 0;
         }
 
@@ -233,7 +233,7 @@ public class HomeManager {
             return 0;
         }
 
-        long cooldownMs = HyperHomesConfig.get().getCooldownSeconds() * 1000L;
+        long cooldownMs = ConfigManager.get().getCooldownSeconds() * 1000L;
         long elapsed = System.currentTimeMillis() - lastTeleport;
         return Math.max(0, cooldownMs - elapsed);
     }
@@ -395,7 +395,7 @@ public class HomeManager {
 
         // Check if the requester has access via sharing or admin bypass
         boolean isShared = home.isSharedWith(requesterUuid);
-        boolean hasAdminBypass = HyperPermsIntegration.hasPermission(requesterUuid, "hyperhomes.admin.teleport.others");
+        boolean hasAdminBypass = PermissionManager.get().hasPermission(requesterUuid, "hyperhomes.admin.teleport.others");
         boolean hasAccess = isShared || hasAdminBypass;
 
         Logger.info("[SHARE-DEBUG]   isSharedWith=%s, hasAdminBypass=%s, hasAccess=%s", isShared, hasAdminBypass, hasAccess);

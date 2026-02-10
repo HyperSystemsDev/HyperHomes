@@ -1,9 +1,9 @@
 package com.hyperhomes.manager;
 
-import com.hyperhomes.config.HyperHomesConfig;
-import com.hyperhomes.integration.HyperPermsIntegration;
-import com.hyperhomes.model.Home;
-import com.hyperhomes.model.Location;
+import com.hyperhomes.config.ConfigManager;
+import com.hyperhomes.integration.PermissionManager;
+import com.hyperhomes.data.Home;
+import com.hyperhomes.data.Location;
 import com.hyperhomes.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,7 +77,7 @@ public class TeleportManager {
         @NotNull TeleportExecutor doTeleport,
         @NotNull Consumer<String> sendMessage
     ) {
-        HyperHomesConfig config = HyperHomesConfig.get();
+        ConfigManager config = ConfigManager.get();
 
         // Cancel any existing pending teleport
         cancelPending(playerUuid, cancelTask);
@@ -134,7 +134,7 @@ public class TeleportManager {
         @NotNull Consumer<Integer> cancelTask,
         @NotNull Consumer<String> sendMessage
     ) {
-        if (!HyperHomesConfig.get().isCancelOnMove()) {
+        if (!ConfigManager.get().isCancelOnMove()) {
             return false;
         }
 
@@ -152,7 +152,7 @@ public class TeleportManager {
 
         if (distSq > 0.25) { // 0.5 blocks squared
             cancelPending(playerUuid, cancelTask);
-            sendMessage.accept(HyperHomesConfig.get().getTeleportCancelledMessage());
+            sendMessage.accept(ConfigManager.get().getTeleportCancelledMessage());
             return true;
         }
 
@@ -172,13 +172,13 @@ public class TeleportManager {
         @NotNull Consumer<Integer> cancelTask,
         @NotNull Consumer<String> sendMessage
     ) {
-        if (!HyperHomesConfig.get().isCancelOnDamage()) {
+        if (!ConfigManager.get().isCancelOnDamage()) {
             return false;
         }
 
         if (pendingTeleports.containsKey(playerUuid)) {
             cancelPending(playerUuid, cancelTask);
-            sendMessage.accept(HyperHomesConfig.get().getTeleportCancelledMessage());
+            sendMessage.accept(ConfigManager.get().getTeleportCancelledMessage());
             return true;
         }
 
@@ -227,10 +227,10 @@ public class TeleportManager {
      * @return warmup seconds, 0 if bypassed
      */
     private int getWarmupSeconds(@NotNull UUID playerUuid) {
-        if (HyperPermsIntegration.hasPermission(playerUuid, "hyperhomes.bypass.warmup")) {
+        if (PermissionManager.get().hasPermission(playerUuid, "hyperhomes.bypass.warmup")) {
             return 0;
         }
-        return HyperHomesConfig.get().getWarmupSeconds();
+        return ConfigManager.get().getWarmupSeconds();
     }
 
     /**
@@ -242,7 +242,7 @@ public class TeleportManager {
         @NotNull TeleportResult result,
         @NotNull Consumer<String> sendMessage
     ) {
-        HyperHomesConfig config = HyperHomesConfig.get();
+        ConfigManager config = ConfigManager.get();
         switch (result) {
             case SUCCESS -> sendMessage.accept(config.getTeleportSuccessMessage(homeName));
             case CANCELLED_MOVED, CANCELLED_DAMAGE, CANCELLED_MANUAL ->

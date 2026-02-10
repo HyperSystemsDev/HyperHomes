@@ -1,6 +1,6 @@
 package com.hyperhomes.gui.page.admin;
 
-import com.hyperhomes.config.HyperHomesConfig;
+import com.hyperhomes.config.ConfigManager;
 import com.hyperhomes.gui.GuiManager;
 import com.hyperhomes.gui.data.AdminData;
 import com.hypixel.hytale.component.Ref;
@@ -40,7 +40,7 @@ public class AdminSettingsPage extends InteractiveCustomUIPage<AdminData> {
         cmd.append("HyperHomes/admin_settings.ui");
 
         // Pre-fill current values
-        HyperHomesConfig config = HyperHomesConfig.get();
+        ConfigManager config = ConfigManager.get();
         cmd.set("#WarmupValue.Text", config.getWarmupSeconds() + "s");
         cmd.set("#CooldownValue.Text", config.getCooldownSeconds() + "s");
         cmd.set("#LimitValue.Text", String.valueOf(config.getDefaultHomeLimit()));
@@ -133,7 +133,7 @@ public class AdminSettingsPage extends InteractiveCustomUIPage<AdminData> {
             return;
         }
 
-        HyperHomesConfig config = HyperHomesConfig.get();
+        ConfigManager config = ConfigManager.get();
         boolean configChanged = false;
 
         switch (data.button) {
@@ -142,47 +142,47 @@ public class AdminSettingsPage extends InteractiveCustomUIPage<AdminData> {
             case "Back" -> guiManager.openAdminMain(player, ref, store, playerRef);
 
             case "WarmupMinus" -> {
-                config.setWarmupSeconds(config.getWarmupSeconds() - 1);
+                config.teleport().setWarmupSeconds(config.getWarmupSeconds() - 1);
                 configChanged = true;
             }
 
             case "WarmupPlus" -> {
-                config.setWarmupSeconds(config.getWarmupSeconds() + 1);
+                config.teleport().setWarmupSeconds(config.getWarmupSeconds() + 1);
                 configChanged = true;
             }
 
             case "CooldownMinus" -> {
-                config.setCooldownSeconds(config.getCooldownSeconds() - 1);
+                config.teleport().setCooldownSeconds(config.getCooldownSeconds() - 1);
                 configChanged = true;
             }
 
             case "CooldownPlus" -> {
-                config.setCooldownSeconds(config.getCooldownSeconds() + 1);
+                config.teleport().setCooldownSeconds(config.getCooldownSeconds() + 1);
                 configChanged = true;
             }
 
             case "LimitMinus" -> {
-                config.setDefaultHomeLimit(config.getDefaultHomeLimit() - 1);
+                config.core().setDefaultHomeLimit(config.getDefaultHomeLimit() - 1);
                 configChanged = true;
             }
 
             case "LimitPlus" -> {
-                config.setDefaultHomeLimit(config.getDefaultHomeLimit() + 1);
+                config.core().setDefaultHomeLimit(config.getDefaultHomeLimit() + 1);
                 configChanged = true;
             }
 
             case "ToggleCancelMove" -> {
-                config.setCancelOnMove(!config.isCancelOnMove());
+                config.teleport().setCancelOnMove(!config.isCancelOnMove());
                 configChanged = true;
             }
 
             case "ToggleCancelDamage" -> {
-                config.setCancelOnDamage(!config.isCancelOnDamage());
+                config.teleport().setCancelOnDamage(!config.isCancelOnDamage());
                 configChanged = true;
             }
 
             case "Save" -> {
-                config.save(dataDir);
+                config.saveAll();
                 player.sendMessage(Message.raw("[")
                         .color("#AAAAAA")
                         .insert(Message.raw("HyperHomes").color("#FFAA00"))

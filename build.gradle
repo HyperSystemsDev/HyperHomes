@@ -35,6 +35,44 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// Generate BuildInfo.java with project version
+def generatedSrcDir = layout.buildDirectory.dir("generated/sources/buildinfo/java")
+sourceSets.main.java.srcDir(generatedSrcDir)
+
+tasks.register('generateBuildInfo') {
+    def outputDir = generatedSrcDir
+    def ver = version
+    inputs.property('version', ver)
+    outputs.dir(outputDir)
+    doLast {
+        def dir = outputDir.get().asFile.toPath().resolve("com/hyperhomes").toFile()
+        dir.mkdirs()
+        new File(dir, "BuildInfo.java").text = """\
+package com.hyperhomes;
+
+/**
+ * Auto-generated build information.
+ */
+public final class BuildInfo {
+    public static final String VERSION = "${ver}";
+    public static final String JAVA_VERSION = "${System.getProperty('java.version')}";
+    public static final long BUILD_TIMESTAMP = ${System.currentTimeMillis()}L;
+    private BuildInfo() {}
+}
+"""
+    }
+}
+
+processResources {
+    filesMatching('manifest.json') {
+        expand(version: version)
+    }
+}
+
+jar {
+    archiveClassifier = 'plain'
+}
+
 shadowJar {
     archiveClassifier.set('')
 
@@ -52,9 +90,9 @@ build {
     dependsOn shadowJar
 }
 
-// Ensure HyperPerms shadowJar is built before compiling (cross-project dependency)
+// Ensure build info is generated and HyperPerms shadowJar is built before compiling
 tasks.named('compileJava') {
-    dependsOn ':HyperPerms:shadowJar'
+    dependsOn 'generateBuildInfo', ':HyperPerms:shadowJar'
 }
 
 tasks.withType(JavaCompile).configureEach {

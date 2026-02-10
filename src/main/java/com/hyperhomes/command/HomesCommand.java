@@ -1,14 +1,15 @@
 package com.hyperhomes.command;
 
+import com.hyperhomes.BuildInfo;
 import com.hyperhomes.HyperHomes;
-import com.hyperhomes.config.HyperHomesConfig;
+import com.hyperhomes.config.ConfigManager;
 import com.hyperhomes.gui.GuiManager;
-import com.hyperhomes.integration.HyperPermsIntegration;
+import com.hyperhomes.integration.PermissionManager;
 import com.hyperhomes.manager.HomeManager;
 import com.hyperhomes.migration.MigrationManager;
 import com.hyperhomes.migration.MigrationResult;
 import com.hyperhomes.migration.MigrationSource;
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import com.hyperhomes.update.UpdateChecker;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -94,7 +95,7 @@ public class HomesCommand extends AbstractPlayerCommand {
         UUID uuid = playerRef.getUuid();
 
         // Permission check
-        if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.list")) {
+        if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.list")) {
             ctx.sendMessage(prefix()
                 .insert(Message.raw("You don't have permission to list homes.").color(COLOR_RED)));
             return;
@@ -114,8 +115,8 @@ public class HomesCommand extends AbstractPlayerCommand {
         }
 
         // Check if GUI should be used by default
-        if (guiManager != null && HyperHomesConfig.get().isGuiEnabled() &&
-            HyperPermsIntegration.hasPermission(uuid, "hyperhomes.gui")) {
+        if (guiManager != null && ConfigManager.get().gui().isEnabled() &&
+            PermissionManager.get().hasPermission(uuid, "hyperhomes.gui")) {
             Player player = store.getComponent(ref, Player.getComponentType());
             if (player != null) {
                 guiManager.openHomesList(player, ref, store, playerRef);
@@ -209,7 +210,7 @@ public class HomesCommand extends AbstractPlayerCommand {
             UUID uuid = playerRef.getUuid();
 
             // Permission check
-            if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.share")) {
+            if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.share")) {
                 ctx.sendMessage(prefix()
                     .insert(Message.raw("You don't have permission to share homes.").color(COLOR_RED)));
                 return;
@@ -323,7 +324,7 @@ public class HomesCommand extends AbstractPlayerCommand {
             UUID uuid = playerRef.getUuid();
 
             // Permission check
-            if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.share")) {
+            if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.share")) {
                 ctx.sendMessage(prefix()
                     .insert(Message.raw("You don't have permission to manage shared homes.").color(COLOR_RED)));
                 return;
@@ -426,7 +427,7 @@ public class HomesCommand extends AbstractPlayerCommand {
             UUID uuid = playerRef.getUuid();
 
             // Permission check
-            if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.use")) {
+            if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.use")) {
                 ctx.sendMessage(prefix()
                     .insert(Message.raw("You don't have permission to use homes.").color(COLOR_RED)));
                 return;
@@ -612,7 +613,7 @@ public class HomesCommand extends AbstractPlayerCommand {
                 var method = ctx.sender().getClass().getMethod("getUuid");
                 Object result = method.invoke(ctx.sender());
                 if (result instanceof java.util.UUID uuid) {
-                    if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.admin.reload")) {
+                    if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.admin.reload")) {
                         ctx.sender().sendMessage(prefix()
                             .insert(Message.raw("You don't have permission to reload the config.").color("#FF5555")));
                         return CompletableFuture.completedFuture(null);
@@ -628,7 +629,7 @@ public class HomesCommand extends AbstractPlayerCommand {
                 .insert(Message.raw("Configuration reloaded!").color(COLOR_GREEN)));
 
             // Show current settings
-            HyperHomesConfig config = HyperHomesConfig.get();
+            ConfigManager config = ConfigManager.get();
             ctx.sender().sendMessage(
                 Message.raw("  Warmup: ").color(COLOR_GRAY)
                     .insert(Message.raw(config.getWarmupSeconds() + "s").color("#FFFFFF"))
@@ -676,7 +677,7 @@ public class HomesCommand extends AbstractPlayerCommand {
                 var method = ctx.sender().getClass().getMethod("getUuid");
                 Object result = method.invoke(ctx.sender());
                 if (result instanceof java.util.UUID uuid) {
-                    if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.admin.update")) {
+                    if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.admin.update")) {
                         ctx.sender().sendMessage(prefix()
                             .insert(Message.raw("You don't have permission to check for updates.").color(COLOR_RED)));
                         return CompletableFuture.completedFuture(null);
@@ -704,7 +705,7 @@ public class HomesCommand extends AbstractPlayerCommand {
                 if (info == null) {
                     ctx.sender().sendMessage(prefix()
                         .insert(Message.raw("You are running the latest version (v").color(COLOR_GREEN))
-                        .insert(Message.raw(HyperHomes.VERSION).color(COLOR_WHITE))
+                        .insert(Message.raw(BuildInfo.VERSION).color(COLOR_WHITE))
                         .insert(Message.raw(")!").color(COLOR_GREEN)));
                     return;
                 }
@@ -714,7 +715,7 @@ public class HomesCommand extends AbstractPlayerCommand {
                 ctx.sender().sendMessage(Message.raw("=== Update Available ===").color(COLOR_GOLD).bold(true));
                 ctx.sender().sendMessage(
                     Message.raw("  Current: ").color(COLOR_GRAY)
-                        .insert(Message.raw("v" + HyperHomes.VERSION).color(COLOR_RED))
+                        .insert(Message.raw("v" + BuildInfo.VERSION).color(COLOR_RED))
                 );
                 ctx.sender().sendMessage(
                     Message.raw("  Latest:  ").color(COLOR_GRAY)
@@ -808,7 +809,7 @@ public class HomesCommand extends AbstractPlayerCommand {
             UUID uuid = playerRef.getUuid();
 
             // Permission check
-            if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.gui")) {
+            if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.gui")) {
                 ctx.sendMessage(prefix()
                     .insert(Message.raw("You don't have permission to use the GUI.").color(COLOR_RED)));
                 return;
@@ -853,7 +854,7 @@ public class HomesCommand extends AbstractPlayerCommand {
             UUID uuid = playerRef.getUuid();
 
             // Permission check
-            if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.admin")) {
+            if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.admin")) {
                 ctx.sendMessage(prefix()
                     .insert(Message.raw("You don't have permission to access admin panel.").color(COLOR_RED)));
                 return;
@@ -954,14 +955,8 @@ public class HomesCommand extends AbstractPlayerCommand {
             // Show integration status
             ctx.sendMessage(Message.raw("Integration Status:").color(COLOR_AQUA));
             ctx.sendMessage(Message.raw("  Available: ").color(COLOR_GRAY)
-                .insert(Message.raw(String.valueOf(HyperPermsIntegration.isAvailable()))
-                    .color(HyperPermsIntegration.isAvailable() ? COLOR_GREEN : COLOR_RED)));
-
-            String initError = HyperPermsIntegration.getInitError();
-            if (initError != null) {
-                ctx.sendMessage(Message.raw("  Init Error: ").color(COLOR_GRAY)
-                    .insert(Message.raw(initError).color(COLOR_RED)));
-            }
+                .insert(Message.raw(String.valueOf(PermissionManager.get().hasProviders()))
+                    .color(PermissionManager.get().hasProviders() ? COLOR_GREEN : COLOR_RED)));
 
             ctx.sendMessage(Message.empty());
 
@@ -979,7 +974,7 @@ public class HomesCommand extends AbstractPlayerCommand {
             };
 
             for (String perm : permsToTest) {
-                boolean hasPerm = HyperPermsIntegration.hasPermission(uuid, perm);
+                boolean hasPerm = PermissionManager.get().hasPermission(uuid, perm);
                 ctx.sendMessage(Message.raw("  " + perm + ": ").color(COLOR_GRAY)
                     .insert(Message.raw(hasPerm ? "ALLOWED" : "DENIED")
                         .color(hasPerm ? COLOR_GREEN : COLOR_RED)));
@@ -989,8 +984,7 @@ public class HomesCommand extends AbstractPlayerCommand {
 
             // Print detailed status to console
             ctx.sendMessage(Message.raw("Detailed status printed to server console.").color(COLOR_YELLOW));
-            com.hyperhomes.util.Logger.info(HyperPermsIntegration.getDetailedStatus());
-            com.hyperhomes.util.Logger.info(HyperPermsIntegration.testPermission(uuid, "hyperhomes.gui"));
+            com.hyperhomes.util.Logger.info(PermissionManager.get().getDetailedStatus());
         }
     }
 
@@ -1024,7 +1018,7 @@ public class HomesCommand extends AbstractPlayerCommand {
                 var method = ctx.sender().getClass().getMethod("getUuid");
                 Object result = method.invoke(ctx.sender());
                 if (result instanceof java.util.UUID uuid) {
-                    if (!HyperPermsIntegration.hasPermission(uuid, "hyperhomes.admin.migrate")) {
+                    if (!PermissionManager.get().hasPermission(uuid, "hyperhomes.admin.migrate")) {
                         ctx.sender().sendMessage(prefix()
                             .insert(Message.raw("You don't have permission to migrate data.").color(COLOR_RED)));
                         return CompletableFuture.completedFuture(null);

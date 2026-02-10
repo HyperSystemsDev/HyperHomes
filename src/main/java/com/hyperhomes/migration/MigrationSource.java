@@ -1,6 +1,6 @@
 package com.hyperhomes.migration;
 
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;

@@ -1,7 +1,7 @@
 package com.hyperhomes.api;
 
 import com.hyperhomes.HyperHomes;
-import com.hyperhomes.model.Home;
+import com.hyperhomes.data.Home;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
